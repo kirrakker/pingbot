@@ -21,7 +21,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta http-equiv="refresh" content="30">
+<meta http-equiv="refresh" content="300">
 <title>PINGBOT // SYSTEM STATUS</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
@@ -371,7 +371,7 @@ HTML_PAGE = """<!DOCTYPE html>
   setInterval(tick, 1000);
 
   // ── Countdown ──
-  var total = 30;
+  var total = 300;
   var left  = total;
   var cdNum = document.getElementById('cdNum');
   var cdBar = document.getElementById('cdBar');
@@ -406,7 +406,7 @@ def pinger():
                 ping_status["last_ok"]   = False
                 print(f"[{ping_status['last_time']}] FAIL: {e}")
             ping_status["total"] += 1
-        time.sleep(60)
+        time.sleep(300)
 
 threading.Thread(target=pinger, daemon=True).start()
 
