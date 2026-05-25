@@ -1,8 +1,9 @@
 import os
 import time
 import threading
+import random
 import requests
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, Response, stream_with_context
 
 app = Flask(__name__)
 
@@ -16,6 +17,63 @@ ping_status = {
     "success": 0,
 }
 
+FAKE_LOGS = [
+    ("sys", ">> MEM CHECK :: heap 42MB / 512MB OK"),
+    ("sys", ">> THREAD POOL :: workers: 4 active"),
+    ("sys", ">> NET IFACE :: eth0 UP [100Mbps]"),
+    ("sys", ">> DNS RESOLVE :: target cached [TTL 60s]"),
+    ("sys", ">> SOCKET :: keepalive enabled"),
+    ("sys", ">> SSL HANDSHAKE :: TLS 1.3 OK"),
+    ("sys", ">> SCHEDULER :: next ping queued"),
+    ("sys", ">> GC CYCLE :: freed 1.2MB"),
+    ("sys", ">> ENV LOAD :: TARGET_LINK set"),
+    ("sys", ">> WATCHDOG :: process healthy"),
+    ("sys", ">> LOG ROTATE :: 0 files purged"),
+    ("sys", ">> UPTIME :: system stable"),
+    ("sys", ">> CPU :: 1.4% user 0.2% sys"),
+    ("sys", ">> DISK IO :: 0 queued ops"),
+    ("sys", ">> ROUTE TABLE :: default gw OK"),
+    ("sys", ">> HEAP ALLOC :: 0 leaks detected"),
+    ("sys", ">> PORT 5000 :: listening OK"),
+    ("sys", ">> IPV4 :: 0.0.0.0 bound"),
+    ("sys", ">> THREAD :: pinger alive"),
+    ("sys", ">> SWAP :: 0MB used"),
+    ("sys", ">> MUTEX :: unlocked"),
+    ("sys", ">> CACHE :: hit ratio 98.2%"),
+    ("sys", ">> SIGNAL :: SIGTERM not received"),
+    ("sys", ">> CONFIG RELOAD :: no changes"),
+    ("sys", ">> RATE LIMIT :: 0/100 used"),
+    ("sys", ">> SESSION :: id:a3f9c2 active"),
+    ("sys", ">> BUFFER FLUSH :: 0 bytes pending"),
+    ("sys", ">> RETRY QUEUE :: empty"),
+    ("sys", ">> PROXY :: direct route OK"),
+    ("sys", ">> TIMESTAMP SYNC :: NTP OK"),
+    ("ok",  ">> PING OK :: [TARGET CLASSIFIED] [HTTP 200]"),
+    ("ok",  ">> RESPONSE TIME :: 312ms"),
+    ("ok",  ">> RESPONSE TIME :: 289ms"),
+    ("ok",  ">> RESPONSE TIME :: 401ms"),
+    ("ok",  ">> CONN REUSE :: keep-alive hit"),
+    ("ok",  ">> PAYLOAD :: 1.8KB received"),
+    ("ok",  ">> HEADER CHECK :: content-type OK"),
+    ("ok",  ">> STATUS VERIFIED :: service UP"),
+    ("ok",  ">> HTTP 200 :: target reachable"),
+    ("ok",  ">> LATENCY :: within threshold"),
+]
+
+@app.route('/log-stream')
+def log_stream():
+    def generate():
+        while True:
+            delay = random.uniform(0.9, 3.5)
+            time.sleep(delay)
+            cls, msg = random.choice(FAKE_LOGS)
+            ts = time.strftime('%d.%m.%Y %H:%M:%S')
+            line = f"{ts}|{cls}|{msg}"
+            yield f"data: {line}\n\n"
+    return Response(stream_with_context(generate()),
+                    mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
+
 HTML_PAGE = """<!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -25,58 +83,28 @@ HTML_PAGE = """<!DOCTYPE html>
 <title>PINGBOT // SYSTEM STATUS</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-
   :root {
-    --c: #00ffff;
-    --cd: #00aaaa;
-    --cg: rgba(0,255,255,0.12);
-    --g: #00ff88;
-    --r: #ff2244;
-    --bg: #000;
-    --panel: #030f0f;
-    --border: rgba(0,255,255,0.2);
-    --muted: #006666;
+    --c: #00ffff; --cd: #00aaaa; --cg: rgba(0,255,255,0.12);
+    --g: #00ff88; --r: #ff2244; --bg: #000; --panel: #030f0f;
+    --border: rgba(0,255,255,0.2); --muted: #006666;
     --f: 'Share Tech Mono', monospace;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
-    background: var(--bg);
-    color: var(--c);
-    font-family: var(--f);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    background: var(--bg); color: var(--c); font-family: var(--f);
+    min-height: 100vh; display: flex; flex-direction: column; overflow: hidden;
   }
-
   body::after {
-    content: '';
-    position: fixed; inset: 0;
-    background: repeating-linear-gradient(
-      0deg, transparent, transparent 3px,
-      rgba(0,255,255,0.012) 3px, rgba(0,255,255,0.012) 4px
-    );
+    content: ''; position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,255,0.012) 3px, rgba(0,255,255,0.012) 4px);
     pointer-events: none; z-index: 1000;
   }
-
-  @keyframes flicker {
-    0%,100% { opacity:1 }
-    91%      { opacity:1 }
-    92%      { opacity:.88 }
-    93%      { opacity:1 }
-    97%      { opacity:1 }
-    98%      { opacity:.94 }
-  }
+  @keyframes flicker { 0%,100%{opacity:1} 91%{opacity:1} 92%{opacity:.88} 93%{opacity:1} 97%{opacity:1} 98%{opacity:.94} }
   body { animation: flicker 10s infinite; }
-
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: .55rem 1.6rem;
-    border-bottom: 1px solid var(--c);
-    background: var(--panel);
-    box-shadow: 0 0 24px var(--cg);
+    padding: .55rem 1.6rem; border-bottom: 1px solid var(--c);
+    background: var(--panel); box-shadow: 0 0 24px var(--cg);
   }
   .topbar-left { display: flex; align-items: center; gap: 1rem; }
   .tb-title { font-size: .8rem; letter-spacing: .22em; text-shadow: 0 0 8px var(--c); }
@@ -84,54 +112,28 @@ HTML_PAGE = """<!DOCTYPE html>
   .topbar-right { display: flex; align-items: center; gap: 1.5rem; }
   .tb-clock { font-size: .9rem; text-shadow: 0 0 10px var(--c); letter-spacing: .1em; }
   .tb-date  { font-size: .65rem; color: var(--cd); letter-spacing: .1em; }
-
-  main {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    overflow: hidden;
-  }
-
-  .log-panel {
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; overflow: hidden;
-  }
+  main { flex: 1; display: grid; grid-template-columns: 1fr 360px; overflow: hidden; }
+  .log-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
   .ph {
-    font-size: .7rem; letter-spacing: .18em;
-    padding: .55rem 1.4rem;
-    border-bottom: 1px solid var(--border);
-    background: var(--panel);
-    text-shadow: 0 0 6px var(--c);
-    display: flex; align-items: center; justify-content: space-between;
+    font-size: .7rem; letter-spacing: .18em; padding: .55rem 1.4rem;
+    border-bottom: 1px solid var(--border); background: var(--panel);
+    text-shadow: 0 0 6px var(--c); display: flex; align-items: center; justify-content: space-between;
   }
   .ph-right { font-size: .62rem; color: var(--muted); }
-
-  .log-body {
-    flex: 1; overflow-y: auto;
-    padding: 1.2rem 1.4rem;
-    font-size: .78rem; line-height: 2;
-  }
+  .log-body { flex: 1; overflow-y: auto; padding: 1.2rem 1.4rem; font-size: .78rem; line-height: 2; }
   .log-body::-webkit-scrollbar { width: 3px; }
   .log-body::-webkit-scrollbar-thumb { background: var(--muted); }
-
   .le { display: flex; gap: .8rem; }
   .le .ts  { color: var(--muted); flex-shrink: 0; font-size: .72rem; }
   .le .msg { color: var(--cd); }
   .le .msg.ok  { color: var(--g); text-shadow: 0 0 7px var(--g); }
   .le .msg.err { color: var(--r); text-shadow: 0 0 7px var(--r); }
   .le .msg.sys { color: var(--muted); }
-
   @keyframes blink { 50% { opacity:0 } }
   .cursor::after { content:'█'; animation: blink .9s step-end infinite; font-size:.6rem; }
-
   .right { display: flex; flex-direction: column; overflow-y: auto; }
   .sec { border-bottom: 1px solid var(--border); padding: 1rem 1.2rem; }
-  .sec-lbl {
-    font-size: .62rem; letter-spacing: .2em;
-    color: var(--c); text-shadow: 0 0 6px var(--c);
-    margin-bottom: .8rem;
-  }
-
+  .sec-lbl { font-size: .62rem; letter-spacing: .2em; color: var(--c); text-shadow: 0 0 6px var(--c); margin-bottom: .8rem; }
   .badge { display: flex; align-items: center; gap: .7rem; font-size: .95rem; letter-spacing: .1em; }
   .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
   .dot.ok   { background: var(--g); animation: glow-g 1.4s ease-in-out infinite; }
@@ -142,95 +144,46 @@ HTML_PAGE = """<!DOCTYPE html>
   .badge.err  { color: var(--r); text-shadow: 0 0 9px var(--r); }
   .badge.idle { color: var(--muted); }
   .sub { font-size: .62rem; color: var(--muted); margin-top: .35rem; letter-spacing: .08em; }
-
   .dr { display: flex; flex-direction: column; gap: .12rem; margin-bottom: .75rem; }
   .dr:last-child { margin-bottom: 0; }
   .dk { font-size: .58rem; letter-spacing: .15em; color: var(--muted); }
   .dv { font-size: .78rem; color: var(--cd); }
   .dv.ok  { color: var(--g); }
   .dv.err { color: var(--r); }
-
   .sg { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
   .sb { border: 1px solid var(--border); padding: .8rem .6rem; text-align: center; position: relative; overflow: hidden; }
-  .sb::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(0,255,255,0.03) 0%, transparent 60%);
-  }
+  .sb::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,255,255,0.03) 0%, transparent 60%); }
   .sn { font-size: 1.8rem; line-height: 1; }
   .sn.t { color: var(--c);  text-shadow: 0 0 12px var(--c); }
   .sn.s { color: var(--g);  text-shadow: 0 0 12px var(--g); }
   .sl { font-size: .58rem; letter-spacing: .12em; color: var(--muted); margin-top: .35rem; }
-
   .uptime-bar-wrap { margin-top: .5rem; }
   .uptime-lbl { font-size: .6rem; color: var(--muted); letter-spacing: .1em; margin-bottom: .3rem; display: flex; justify-content: space-between; }
-  .uptime-track { height: 4px; background: var(--border); position: relative; }
+  .uptime-track { height: 4px; background: var(--border); }
   .uptime-fill  { height: 100%; background: var(--g); box-shadow: 0 0 8px var(--g); transition: width .4s; }
-
+  @keyframes lobBlink { 0%,100%{opacity:1;box-shadow:0 0 10px var(--r)} 50%{opacity:.3;box-shadow:0 0 3px var(--r)} }
+  .lob-timer-val { font-size: 2rem; letter-spacing: .08em; color: var(--g); text-shadow: 0 0 16px var(--g); line-height: 1; margin-bottom: .45rem; }
+  .lob-viz { height: 32px; display: flex; align-items: center; gap: 2px; overflow: hidden; margin-bottom: .6rem; }
+  .lob-btn { width: 100%; margin-top: .6rem; background: transparent; border: 1px solid var(--r); color: var(--r); text-shadow: 0 0 6px var(--r); font-family: var(--f); font-size: .62rem; letter-spacing: .16em; padding: .42rem; cursor: pointer; transition: background .15s; }
+  .lob-btn:hover { background: rgba(255,34,68,0.12); }
+  .lob-btn.resumed { border-color: var(--g); color: var(--g); text-shadow: 0 0 6px var(--g); }
+  .lob-btn.resumed:hover { background: rgba(0,255,136,0.1); }
+  .lob-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem; }
+  .lob-rec-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--r); box-shadow: 0 0 8px var(--r); animation: lobBlink 1.1s ease-in-out infinite; }
   .cd-bar-track { width: 80px; height: 2px; background: var(--border); display:inline-block; vertical-align:middle; margin: 0 .4rem; }
   .cd-bar-fill  { height: 100%; background: var(--c); box-shadow: 0 0 4px var(--c); transition: width 1s linear; }
-
-  @keyframes lobBlink {
-    0%,100% { opacity:1; box-shadow: 0 0 10px var(--r); }
-    50%      { opacity:.3; box-shadow: 0 0 3px var(--r); }
-  }
-  .lob-timer-val {
-    font-size: 2rem; letter-spacing: .08em;
-    color: var(--g); text-shadow: 0 0 16px var(--g);
-    line-height: 1; margin-bottom: .45rem;
-  }
-  .lob-viz {
-    height: 32px; display: flex; align-items: center;
-    gap: 2px; overflow: hidden; margin-bottom: .6rem;
-  }
-  .lob-btn {
-    width: 100%; margin-top: .6rem;
-    background: transparent;
-    border: 1px solid var(--r);
-    color: var(--r); text-shadow: 0 0 6px var(--r);
-    font-family: var(--f); font-size: .62rem;
-    letter-spacing: .16em; padding: .42rem;
-    cursor: pointer; transition: background .15s;
-  }
-  .lob-btn:hover { background: rgba(255,34,68,0.12); }
-  .lob-btn.resumed {
-    border-color: var(--g); color: var(--g);
-    text-shadow: 0 0 6px var(--g);
-  }
-  .lob-btn.resumed:hover { background: rgba(0,255,136,0.1); }
-  .lob-header-row {
-    display: flex; align-items: center;
-    justify-content: space-between; margin-bottom: .5rem;
-  }
-  .lob-rec-dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    background: var(--r); box-shadow: 0 0 8px var(--r);
-    animation: lobBlink 1.1s ease-in-out infinite;
-  }
-
-  #matrix {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
-    opacity: .045;
-    pointer-events: none;
-    z-index: 0;
-  }
-
+  #matrix { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: .045; pointer-events: none; z-index: 0; }
   .bottombar {
-    border-top: 1px solid var(--c);
-    padding: .38rem 1.6rem;
-    background: var(--panel);
+    border-top: 1px solid var(--c); padding: .38rem 1.6rem; background: var(--panel);
     display: flex; justify-content: space-between; align-items: center;
     font-size: .62rem; color: var(--muted); letter-spacing: .1em;
-    box-shadow: 0 0 20px var(--cg);
-    position: relative; z-index: 2;
+    box-shadow: 0 0 20px var(--cg); position: relative; z-index: 2;
   }
-  .bb-right { display: flex; gap: 1.5rem; }
+  .bb-right { display: flex; gap: 1.5rem; align-items: center; }
   .bb-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--g); box-shadow: 0 0 6px var(--g); margin-right: .4rem; animation: glow-g 1.4s ease-in-out infinite; }
 </style>
 </head>
 <body>
-
 <canvas id="matrix"></canvas>
 
 <div class="topbar">
@@ -245,7 +198,6 @@ HTML_PAGE = """<!DOCTYPE html>
 </div>
 
 <main>
-
   <div class="log-panel">
     <div class="ph">
       <span>SYSTEM BROADCAST LOGS | PING.LOG</span>
@@ -253,7 +205,7 @@ HTML_PAGE = """<!DOCTYPE html>
     </div>
     <div style="padding:.6rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem;background:rgba(0,255,255,0.02);">
       <img src="https://i.imgur.com/4VfmCSF.png" alt="lobotomi"
-        style="height:54px;width:auto;opacity:.85;border:1px solid var(--border);image-rendering:auto;" />
+        style="height:54px;width:auto;opacity:.85;border:1px solid var(--border);" />
       <div style="font-size:.6rem;letter-spacing:.12em;color:var(--muted);line-height:1.8;">
         <div style="color:var(--cd);">LOBOTOMY SYSTEMS</div>
         <div>UPTIME MONITOR ACTIVE</div>
@@ -271,12 +223,11 @@ HTML_PAGE = """<!DOCTYPE html>
       {% else %}
       <div class="le"><span class="ts">--:--:--</span><span class="msg sys">&gt;&gt; WAITING :: first ping in 10s...</span></div>
       {% endif %}
-      <div class="le"><span class="ts"></span><span class="msg cursor"></span></div>
+      <div class="le" id="cursorLine"><span class="ts"></span><span class="msg cursor"></span></div>
     </div>
   </div>
 
   <div class="right">
-
     <div class="sec">
       <div class="sec-lbl">BOT CONTROL</div>
       {% if last_ok == true %}
@@ -305,13 +256,8 @@ HTML_PAGE = """<!DOCTYPE html>
       </div>
       {% if total > 0 %}
       <div class="uptime-bar-wrap">
-        <div class="uptime-lbl">
-          <span>UPTIME RATE</span>
-          <span>{{ "%d"|format((success/total*100)|int) }}%</span>
-        </div>
-        <div class="uptime-track">
-          <div class="uptime-fill" style="width:{{ (success/total*100)|int }}%"></div>
-        </div>
+        <div class="uptime-lbl"><span>UPTIME RATE</span><span>{{ "%d"|format((success/total*100)|int) }}%</span></div>
+        <div class="uptime-track"><div class="uptime-fill" style="width:{{ (success/total*100)|int }}%"></div></div>
       </div>
       {% endif %}
     </div>
@@ -333,13 +279,9 @@ HTML_PAGE = """<!DOCTYPE html>
           <span class="dk">STARTED</span>
           <span class="dv" id="lobStart">--:--:--</span>
         </div>
-
       </div>
       <button class="lob-btn" id="lobBtn" onclick="lobToggle()">&#9632; STOP RECORDING</button>
     </div>
-
-
-
   </div>
 </main>
 
@@ -360,196 +302,116 @@ HTML_PAGE = """<!DOCTYPE html>
 
 <script>
 (function() {
+  // Matrix rain
   var canvas = document.getElementById('matrix');
   var ctx = canvas.getContext('2d');
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
   var cols = Math.floor(canvas.width / 18);
   var drops = Array(cols).fill(1);
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&<>[]{}';
   function drawMatrix() {
-    ctx.fillStyle = 'rgba(0,0,0,0.05)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#00ffff';
-    ctx.font = '13px Share Tech Mono';
-    drops.forEach(function(y, i) {
-      var c = chars[Math.floor(Math.random() * chars.length)];
-      ctx.fillText(c, i * 18, y * 18);
-      if (y * 18 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#00ffff'; ctx.font = '13px Share Tech Mono';
+    drops.forEach(function(y,i){
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*18, y*18);
+      if(y*18>canvas.height && Math.random()>0.975) drops[i]=0;
       drops[i]++;
     });
   }
   setInterval(drawMatrix, 55);
 
-  function pad(n) { return n < 10 ? '0' + n : n; }
-
-  function tick() {
-    var now = new Date();
-    var hms  = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
-    var date = now.getFullYear() + '/' + pad(now.getMonth()+1) + '/' + pad(now.getDate());
-    document.getElementById('clockEl').textContent = hms;
-    document.getElementById('dateEl').textContent  = date;
-    document.getElementById('bbTime').textContent  = hms;
-    document.getElementById('bbDate').textContent  = date;
+  // Clock
+  function pad(n){ return n<10?'0'+n:''+n; }
+  function tick(){
+    var now=new Date();
+    var hms=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    var date=now.getFullYear()+'/'+pad(now.getMonth()+1)+'/'+pad(now.getDate());
+    document.getElementById('clockEl').textContent=hms;
+    document.getElementById('dateEl').textContent=date;
+    document.getElementById('bbTime').textContent=hms;
+    document.getElementById('bbDate').textContent=date;
   }
-  tick();
-  setInterval(tick, 1000);
+  tick(); setInterval(tick,1000);
 
+  // SSE log stream
   var logbox = document.getElementById('logbox');
-  var fakeLogs = [
-    { cls:'sys', msgs:[
-      '>> MEM CHECK :: heap 42MB / 512MB OK',
-      '>> THREAD POOL :: workers: 4 active',
-      '>> NET IFACE :: eth0 UP [100Mbps]',
-      '>> DNS RESOLVE :: target cached [TTL 60s]',
-      '>> SOCKET :: keepalive enabled',
-      '>> SSL HANDSHAKE :: TLS 1.3 OK',
-      '>> SCHEDULER :: next ping queued',
-      '>> GC CYCLE :: freed 1.2MB',
-      '>> ENV LOAD :: TARGET_LINK set',
-      '>> WATCHDOG :: process healthy',
-      '>> LOG ROTATE :: 0 files purged',
-      '>> UPTIME :: system stable',
-      '>> CPU :: 1.4% user 0.2% sys',
-      '>> DISK IO :: 0 queued ops',
-      '>> ROUTE TABLE :: default gw OK',
-      '>> HEAP ALLOC :: 0 leaks detected',
-      '>> PORT 5000 :: listening OK',
-      '>> IPV4 :: 0.0.0.0 bound',
-      '>> THREAD :: pinger alive',
-      '>> SWAP :: 0MB used',
-      '>> MUTEX :: unlocked',
-      '>> CACHE :: hit ratio 98.2%',
-      '>> SIGNAL :: SIGTERM not received',
-      '>> CONFIG RELOAD :: no changes',
-      '>> RATE LIMIT :: 0/100 used',
-      '>> SESSION :: id:a3f9c2 active',
-      '>> BUFFER FLUSH :: 0 bytes pending',
-      '>> RETRY QUEUE :: empty',
-      '>> PROXY :: direct route OK',
-      '>> TIMESTAMP SYNC :: NTP OK',
-    ]},
-    { cls:'ok', msgs:[
-      '>> PING OK :: [TARGET CLASSIFIED] [HTTP 200]',
-      '>> RESPONSE TIME :: 312ms',
-      '>> RESPONSE TIME :: 289ms',
-      '>> RESPONSE TIME :: 401ms',
-      '>> CONN REUSE :: keep-alive hit',
-      '>> PAYLOAD :: 1.8KB received',
-      '>> HEADER CHECK :: content-type OK',
-      '>> STATUS VERIFIED :: service UP',
-      '>> HTTP 200 :: target reachable',
-      '>> LATENCY :: within threshold',
-    ]},
-  ];
-
-  function randomLog() {
-    var group = fakeLogs[Math.floor(Math.random() * fakeLogs.length)];
-    var msg   = group.msgs[Math.floor(Math.random() * group.msgs.length)];
-    var now   = new Date();
-    var ts    = pad(now.getDate()) + '.' + pad(now.getMonth()+1) + '.' + now.getFullYear()
-                + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+  var cursorLine = document.getElementById('cursorLine');
+  var es = new EventSource('/log-stream');
+  es.onmessage = function(e) {
+    var parts = e.data.split('|');
+    var ts  = parts[0];
+    var cls = parts[1];
+    var msg = parts[2];
     var le = document.createElement('div');
     le.className = 'le';
-    le.innerHTML = '<span class="ts">' + ts + '</span><span class="msg ' + group.cls + '">' + msg + '</span>';
-    var cursor = logbox.querySelector('.cursor');
-    logbox.insertBefore(le, cursor);
+    le.innerHTML = '<span class="ts">'+ts+'</span><span class="msg '+cls+'">'+msg+'</span>';
+    logbox.insertBefore(le, cursorLine);
     logbox.scrollTop = logbox.scrollHeight;
     var lines = logbox.querySelectorAll('.le');
-    if (lines.length > 120) lines[0].remove();
-  }
+    if(lines.length > 150) lines[0].remove();
+  };
+  es.onerror = function(){ es.close(); };
 
-  function scheduleLog() {
-    var delay = 800 + Math.random() * 3200;
-    setTimeout(function(){ randomLog(); scheduleLog(); }, delay);
-  }
-  scheduleLog();
-
-  var total = 300;
-  var left  = total;
-  var cdNum = document.getElementById('cdNum');
-  var cdBar = document.getElementById('cdBar');
-  setInterval(function() {
+  // Countdown
+  var total=300, left=total;
+  var cdNum=document.getElementById('cdNum');
+  var cdBar=document.getElementById('cdBar');
+  setInterval(function(){
     left--;
-    cdNum.textContent = left < 10 ? '0' + left : left;
-    cdBar.style.width = (left / total * 100) + '%';
-    if (left <= 0) location.reload();
-  }, 1000);
+    cdNum.textContent=left;
+    cdBar.style.width=(left/total*100)+'%';
+    if(left<=0) location.reload();
+  },1000);
 
-  var lobStartTime = Date.now();
-  var lobRunning   = true;
+  // Lobotomy rec
+  var lobStartTime=Date.now(), lobRunning=true;
+  var lobNow=new Date();
+  document.getElementById('lobStart').textContent=pad(lobNow.getHours())+':'+pad(lobNow.getMinutes())+':'+pad(lobNow.getSeconds());
 
-  var lobNow = new Date();
-  document.getElementById('lobStart').textContent =
-    pad(lobNow.getHours()) + ':' + pad(lobNow.getMinutes()) + ':' + pad(lobNow.getSeconds());
-
-  var lobViz = document.getElementById('lobViz');
-  var lobBars = [];
-
-  var lobStyle = document.createElement('style');
-  lobStyle.textContent = '@keyframes lobWave{0%,100%{transform:scaleY(.1)}50%{transform:scaleY(1)}}';
+  var lobViz=document.getElementById('lobViz');
+  var lobBars=[];
+  var lobStyle=document.createElement('style');
+  lobStyle.textContent='@keyframes lobWave{0%,100%{transform:scaleY(.1)}50%{transform:scaleY(1)}}';
   document.head.appendChild(lobStyle);
-
-  for (var i = 0; i < 40; i++) {
-    var b = document.createElement('div');
-    var dur   = (0.4 + Math.random() * 0.8).toFixed(2) + 's';
-    var delay = (-Math.random() * 1.2).toFixed(2) + 's';
-    b.style.cssText =
-      'width:3px;height:32px;border-radius:1px;' +
-      'background:var(--c);box-shadow:0 0 4px var(--c);' +
-      'transform-origin:bottom;transform:scaleY(0.1);' +
-      'animation:lobWave ' + dur + ' linear ' + delay + ' infinite;';
-    lobViz.appendChild(b);
-    lobBars.push(b);
+  for(var i=0;i<40;i++){
+    var b=document.createElement('div');
+    var dur=(0.4+Math.random()*0.8).toFixed(2)+'s';
+    var dly=(-Math.random()*1.2).toFixed(2)+'s';
+    b.style.cssText='width:3px;height:32px;border-radius:1px;background:var(--c);box-shadow:0 0 4px var(--c);transform-origin:bottom;transform:scaleY(0.1);animation:lobWave '+dur+' linear '+dly+' infinite;';
+    lobViz.appendChild(b); lobBars.push(b);
   }
 
-  var lobTimerEl  = document.getElementById('lobTimer');
+  var lobTimerEl=document.getElementById('lobTimer');
+  setInterval(function(){
+    if(!lobRunning) return;
+    var e=Math.floor((Date.now()-lobStartTime)/1000);
+    lobTimerEl.textContent=pad(Math.floor(e/3600))+':'+pad(Math.floor(e%3600/60))+':'+pad(e%60);
+  },1000);
 
-  setInterval(function() {
-    if (!lobRunning) return;
-    var elapsed = Math.floor((Date.now() - lobStartTime) / 1000);
-    var h = Math.floor(elapsed / 3600);
-    var m = Math.floor((elapsed % 3600) / 60);
-    var s = elapsed % 60;
-    lobTimerEl.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
-
-  }, 1000);
-
-  window.lobToggle = function() {
-    lobRunning = !lobRunning;
-    var btn    = document.getElementById('lobBtn');
-    var dot    = document.getElementById('lobDot');
-    var status = document.getElementById('lobStatus');
-    if (!lobRunning) {
-      btn.textContent = '\u25b6 RESUME RECORDING';
-      btn.classList.add('resumed');
-      status.textContent = '\u25a0 PAUSED';
-      status.className = 'dv';
-      dot.style.animation = 'none';
-      dot.style.background = 'var(--muted)';
-      dot.style.boxShadow  = 'none';
-      lobBars.forEach(function(b) {
-        b.style.animation = 'none';
-        b.style.transform = 'scaleY(0.08)';
-      });
+  window.lobToggle=function(){
+    lobRunning=!lobRunning;
+    var btn=document.getElementById('lobBtn');
+    var dot=document.getElementById('lobDot');
+    var st=document.getElementById('lobStatus');
+    if(!lobRunning){
+      btn.textContent='\u25b6 RESUME RECORDING'; btn.classList.add('resumed');
+      st.textContent='\u25a0 PAUSED'; st.className='dv';
+      dot.style.animation='none'; dot.style.background='var(--muted)'; dot.style.boxShadow='none';
+      lobBars.forEach(function(b){ b.style.animation='none'; b.style.transform='scaleY(0.08)'; });
     } else {
-      var parts = lobTimerEl.textContent.split(':');
-      lobStartTime = Date.now() - (+parts[0]*3600 + +parts[1]*60 + +parts[2]) * 1000;
-      btn.textContent = '\u25a0 STOP RECORDING';
-      btn.classList.remove('resumed');
-      status.textContent = '\u25cf RECORDING';
-      status.className = 'dv ok';
-      dot.style.animation = 'lobBlink 1.1s ease-in-out infinite';
-      dot.style.background = 'var(--r)';
-      dot.style.boxShadow  = '0 0 8px var(--r)';
-      lobBars.forEach(function(b) {
-        var dur   = (0.4 + Math.random() * 0.8).toFixed(2) + 's';
-        var delay = (-Math.random() * 1.2).toFixed(2) + 's';
-        b.style.animation = 'lobWave ' + dur + ' linear ' + delay + ' infinite';
+      var p=lobTimerEl.textContent.split(':');
+      lobStartTime=Date.now()-(+p[0]*3600 + +p[1]*60 + +p[2])*1000;
+      btn.textContent='\u25a0 STOP RECORDING'; btn.classList.remove('resumed');
+      st.textContent='\u25cf RECORDING'; st.className='dv ok';
+      dot.style.animation='lobBlink 1.1s ease-in-out infinite';
+      dot.style.background='var(--r)'; dot.style.boxShadow='0 0 8px var(--r)';
+      lobBars.forEach(function(b){
+        var dur=(0.4+Math.random()*0.8).toFixed(2)+'s';
+        var dly=(-Math.random()*1.2).toFixed(2)+'s';
+        b.style.animation='lobWave '+dur+' linear '+dly+' infinite';
       });
     }
   };
-
 })();
 </script>
 </body>
@@ -593,4 +455,4 @@ def index():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, threaded=True)
