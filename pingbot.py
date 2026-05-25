@@ -392,6 +392,13 @@ HTML_PAGE = """<!DOCTYPE html>
   </div>
 </main>
 
+<!-- WATERMARK -->
+<div style="position:fixed;bottom:2.4rem;left:1.6rem;z-index:999;pointer-events:none;font-family:var(--f);line-height:1.7;">
+  <div style="font-size:.58rem;letter-spacing:.18em;color:rgba(0,255,255,0.18);">YAPIMCI</div>
+  <div style="font-size:.72rem;letter-spacing:.12em;color:rgba(0,255,255,0.28);text-shadow:0 0 8px rgba(0,255,255,0.15);">@lobotomi_fan</div>
+  <div style="font-size:.52rem;letter-spacing:.14em;color:rgba(0,255,255,0.12);margin-top:.15rem;">LOBOTOMY SYSTEMS // 2025</div>
+</div>
+
 <!-- BOTTOM BAR -->
 <div class="bottombar">
   <span><span class="bb-dot"></span>SYSTEM ACTIVE // PING INTERVAL: 60s</span>
