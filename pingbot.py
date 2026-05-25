@@ -337,18 +337,29 @@ HTML_PAGE = """<!DOCTYPE html>
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
   var es = new EventSource('/log-stream');
+  var MAX_LINES = 40;
   es.onmessage = function(e) {
     var parts = e.data.split('|');
     var ts  = parts[0];
     var cls = parts[1];
     var msg = parts[2];
+    var lines = logbox.querySelectorAll('.le');
+    if(lines.length >= MAX_LINES) {
+      // Doldu - hepsini sil, cursor hariç
+      var toRemove = [];
+      lines.forEach(function(l){ if(l.id !== 'cursorLine') toRemove.push(l); });
+      toRemove.forEach(function(l){ l.remove(); });
+      // Temizlendi mesaji ekle
+      var sep = document.createElement('div');
+      sep.className = 'le';
+      sep.innerHTML = '<span class="ts">--:--:--</span><span class="msg sys">>> LOG CLEARED :: buffer reset</span>';
+      logbox.insertBefore(sep, cursorLine);
+    }
     var le = document.createElement('div');
     le.className = 'le';
     le.innerHTML = '<span class="ts">'+ts+'</span><span class="msg '+cls+'">'+msg+'</span>';
     logbox.insertBefore(le, cursorLine);
     logbox.scrollTop = logbox.scrollHeight;
-    var lines = logbox.querySelectorAll('.le');
-    if(lines.length > 150) lines[0].remove();
   };
   es.onerror = function(){ es.close(); };
 
