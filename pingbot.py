@@ -167,14 +167,8 @@ HTML_PAGE = """<!DOCTYPE html>
   .uptime-track { height: 4px; background: var(--border); position: relative; }
   .uptime-fill  { height: 100%; background: var(--g); box-shadow: 0 0 8px var(--g); transition: width .4s; }
 
-  .refresh-sec { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); }
-  .refresh-label { font-size: .62rem; letter-spacing: .2em; color: var(--c); text-shadow: 0 0 6px var(--c); margin-bottom: .6rem; }
-  .countdown-wrap { display: flex; align-items: center; gap: 1rem; }
-  .cd-num { font-size: 2rem; color: var(--c); text-shadow: 0 0 14px var(--c); line-height: 1; min-width: 2.5ch; }
-  .cd-right { display: flex; flex-direction: column; gap: .2rem; }
-  .cd-bar-track { width: 120px; height: 3px; background: var(--border); }
-  .cd-bar-fill  { height: 100%; background: var(--c); box-shadow: 0 0 6px var(--c); transition: width 1s linear; }
-  .cd-sub { font-size: .6rem; color: var(--muted); letter-spacing: .08em; }
+  .cd-bar-track { width: 80px; height: 2px; background: var(--border); display:inline-block; vertical-align:middle; margin: 0 .4rem; }
+  .cd-bar-fill  { height: 100%; background: var(--c); box-shadow: 0 0 4px var(--c); transition: width 1s linear; }
 
   @keyframes lobBlink {
     0%,100% { opacity:1; box-shadow: 0 0 10px var(--r); }
@@ -257,6 +251,15 @@ HTML_PAGE = """<!DOCTYPE html>
       <span>SYSTEM BROADCAST LOGS | PING.LOG</span>
       <span class="ph-right">INTERVAL: 60s</span>
     </div>
+    <div style="padding:.6rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem;background:rgba(0,255,255,0.02);">
+      <img src="https://i.imgur.com/4VfmCSF.png" alt="lobotomi"
+        style="height:54px;width:auto;opacity:.85;border:1px solid var(--border);image-rendering:auto;" />
+      <div style="font-size:.6rem;letter-spacing:.12em;color:var(--muted);line-height:1.8;">
+        <div style="color:var(--cd);">LOBOTOMY SYSTEMS</div>
+        <div>UPTIME MONITOR ACTIVE</div>
+        <div>NODE :: render-prod-01</div>
+      </div>
+    </div>
     <div class="log-body" id="logbox">
       <div class="le"><span class="ts">{{ boot_time }}</span><span class="msg sys">&gt;&gt; SYSTEM BOOT :: pingbot.py loaded</span></div>
       <div class="le"><span class="ts">{{ boot_time }}</span><span class="msg sys">&gt;&gt; TARGET LINK :: [CLASSIFIED] ██████████████</span></div>
@@ -291,20 +294,6 @@ HTML_PAGE = """<!DOCTYPE html>
       <div class="dr">
         <span class="dk">TARGET_URL</span>
         <span class="dv" style="color:var(--muted);font-style:italic;">[CLASSIFIED] ██████████</span>
-      </div>
-      <div class="dr">
-        <span class="dk">LAST_PING</span>
-        <span class="dv">{{ last_time }}</span>
-      </div>
-      <div class="dr">
-        <span class="dk">HTTP_RESPONSE</span>
-        {% if last_ok == true %}
-          <span class="dv ok">{{ last_code }} OK</span>
-        {% elif last_ok == false %}
-          <span class="dv err">{{ last_code }}</span>
-        {% else %}
-          <span class="dv">---</span>
-        {% endif %}
       </div>
     </div>
 
@@ -344,24 +333,12 @@ HTML_PAGE = """<!DOCTYPE html>
           <span class="dk">STARTED</span>
           <span class="dv" id="lobStart">--:--:--</span>
         </div>
-        <div class="dr">
-          <span class="dk">FRAMES</span>
-          <span class="dv" id="lobFrames">0</span>
-        </div>
+
       </div>
       <button class="lob-btn" id="lobBtn" onclick="lobToggle()">&#9632; STOP RECORDING</button>
     </div>
 
-    <div class="refresh-sec">
-      <div class="refresh-label">PAGE REFRESH COUNTDOWN</div>
-      <div class="countdown-wrap">
-        <div class="cd-num" id="cdNum">300</div>
-        <div class="cd-right">
-          <div class="cd-bar-track"><div class="cd-bar-fill" id="cdBar" style="width:100%"></div></div>
-          <div class="cd-sub">saniye sonra yenileniyor</div>
-        </div>
-      </div>
-    </div>
+
 
   </div>
 </main>
@@ -375,6 +352,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <div class="bottombar">
   <span><span class="bb-dot"></span>SYSTEM ACTIVE // PING INTERVAL: 60s</span>
   <div class="bb-right">
+    <span style="color:var(--cd);">REFRESH <span id="cdNum" style="color:var(--c);text-shadow:0 0 6px var(--c);">300</span>s <span class="cd-bar-track"><span class="cd-bar-fill" id="cdBar" style="width:100%;display:block;"></span></span></span>
     <span id="bbDate">----/--/--</span>
     <span id="bbTime">--:--:--</span>
   </div>
@@ -500,7 +478,6 @@ HTML_PAGE = """<!DOCTYPE html>
 
   var lobStartTime = Date.now();
   var lobRunning   = true;
-  var lobFrames    = 0;
 
   var lobNow = new Date();
   document.getElementById('lobStart').textContent =
@@ -527,7 +504,6 @@ HTML_PAGE = """<!DOCTYPE html>
   }
 
   var lobTimerEl  = document.getElementById('lobTimer');
-  var lobFramesEl = document.getElementById('lobFrames');
 
   setInterval(function() {
     if (!lobRunning) return;
@@ -536,8 +512,7 @@ HTML_PAGE = """<!DOCTYPE html>
     var m = Math.floor((elapsed % 3600) / 60);
     var s = elapsed % 60;
     lobTimerEl.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
-    lobFrames += Math.floor(24 + Math.random() * 6);
-    lobFramesEl.textContent = lobFrames.toLocaleString();
+
   }, 1000);
 
   window.lobToggle = function() {
