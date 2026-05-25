@@ -196,7 +196,7 @@ HTML_PAGE = """<!DOCTYPE html>
   }
   .lob-timer-val {
     font-size: 2rem; letter-spacing: .08em;
-    color: var(--r); text-shadow: 0 0 16px var(--r);
+    color: var(--g); text-shadow: 0 0 16px var(--g);
     line-height: 1; margin-bottom: .45rem;
   }
   .lob-viz {
