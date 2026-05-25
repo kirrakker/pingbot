@@ -63,15 +63,14 @@ HTML_PAGE = """<!DOCTYPE html>
 
   @keyframes flicker {
     0%,100% { opacity:1 }
-    91%     { opacity:1 }
-    92%     { opacity:.88 }
-    93%     { opacity:1 }
-    97%     { opacity:1 }
-    98%     { opacity:.94 }
+    91%      { opacity:1 }
+    92%      { opacity:.88 }
+    93%      { opacity:1 }
+    97%      { opacity:1 }
+    98%      { opacity:.94 }
   }
   body { animation: flicker 10s infinite; }
 
-  /* ── TOPBAR ── */
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
     padding: .55rem 1.6rem;
@@ -82,12 +81,10 @@ HTML_PAGE = """<!DOCTYPE html>
   .topbar-left { display: flex; align-items: center; gap: 1rem; }
   .tb-title { font-size: .8rem; letter-spacing: .22em; text-shadow: 0 0 8px var(--c); }
   .tb-ver   { font-size: .62rem; color: var(--muted); letter-spacing: .12em; }
-
   .topbar-right { display: flex; align-items: center; gap: 1.5rem; }
   .tb-clock { font-size: .9rem; text-shadow: 0 0 10px var(--c); letter-spacing: .1em; }
   .tb-date  { font-size: .65rem; color: var(--cd); letter-spacing: .1em; }
 
-  /* ── MAIN ── */
   main {
     flex: 1;
     display: grid;
@@ -95,7 +92,6 @@ HTML_PAGE = """<!DOCTYPE html>
     overflow: hidden;
   }
 
-  /* ── LOG PANEL ── */
   .log-panel {
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column; overflow: hidden;
@@ -128,7 +124,6 @@ HTML_PAGE = """<!DOCTYPE html>
   @keyframes blink { 50% { opacity:0 } }
   .cursor::after { content:'█'; animation: blink .9s step-end infinite; font-size:.6rem; }
 
-  /* ── RIGHT PANEL ── */
   .right { display: flex; flex-direction: column; overflow-y: auto; }
   .sec { border-bottom: 1px solid var(--border); padding: 1rem 1.2rem; }
   .sec-lbl {
@@ -137,7 +132,6 @@ HTML_PAGE = """<!DOCTYPE html>
     margin-bottom: .8rem;
   }
 
-  /* Status */
   .badge { display: flex; align-items: center; gap: .7rem; font-size: .95rem; letter-spacing: .1em; }
   .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
   .dot.ok   { background: var(--g); animation: glow-g 1.4s ease-in-out infinite; }
@@ -149,7 +143,6 @@ HTML_PAGE = """<!DOCTYPE html>
   .badge.idle { color: var(--muted); }
   .sub { font-size: .62rem; color: var(--muted); margin-top: .35rem; letter-spacing: .08em; }
 
-  /* Data rows */
   .dr { display: flex; flex-direction: column; gap: .12rem; margin-bottom: .75rem; }
   .dr:last-child { margin-bottom: 0; }
   .dk { font-size: .58rem; letter-spacing: .15em; color: var(--muted); }
@@ -157,7 +150,6 @@ HTML_PAGE = """<!DOCTYPE html>
   .dv.ok  { color: var(--g); }
   .dv.err { color: var(--r); }
 
-  /* Stats */
   .sg { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
   .sb { border: 1px solid var(--border); padding: .8rem .6rem; text-align: center; position: relative; overflow: hidden; }
   .sb::before {
@@ -170,17 +162,12 @@ HTML_PAGE = """<!DOCTYPE html>
   .sn.s { color: var(--g);  text-shadow: 0 0 12px var(--g); }
   .sl { font-size: .58rem; letter-spacing: .12em; color: var(--muted); margin-top: .35rem; }
 
-  /* Uptime bar */
   .uptime-bar-wrap { margin-top: .5rem; }
   .uptime-lbl { font-size: .6rem; color: var(--muted); letter-spacing: .1em; margin-bottom: .3rem; display: flex; justify-content: space-between; }
   .uptime-track { height: 4px; background: var(--border); position: relative; }
   .uptime-fill  { height: 100%; background: var(--g); box-shadow: 0 0 8px var(--g); transition: width .4s; }
 
-  /* Refresh countdown */
-  .refresh-sec {
-    padding: 1rem 1.2rem;
-    border-bottom: 1px solid var(--border);
-  }
+  .refresh-sec { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); }
   .refresh-label { font-size: .62rem; letter-spacing: .2em; color: var(--c); text-shadow: 0 0 6px var(--c); margin-bottom: .6rem; }
   .countdown-wrap { display: flex; align-items: center; gap: 1rem; }
   .cd-num { font-size: 2rem; color: var(--c); text-shadow: 0 0 14px var(--c); line-height: 1; min-width: 2.5ch; }
@@ -189,7 +176,6 @@ HTML_PAGE = """<!DOCTYPE html>
   .cd-bar-fill  { height: 100%; background: var(--c); box-shadow: 0 0 6px var(--c); transition: width 1s linear; }
   .cd-sub { font-size: .6rem; color: var(--muted); letter-spacing: .08em; }
 
-  /* ── LOBOTOMY REC ── */
   @keyframes lobBlink {
     0%,100% { opacity:1; box-shadow: 0 0 10px var(--r); }
     50%      { opacity:.3; box-shadow: 0 0 3px var(--r); }
@@ -228,7 +214,6 @@ HTML_PAGE = """<!DOCTYPE html>
     animation: lobBlink 1.1s ease-in-out infinite;
   }
 
-  /* Matrix rain canvas */
   #matrix {
     position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
@@ -237,7 +222,6 @@ HTML_PAGE = """<!DOCTYPE html>
     z-index: 0;
   }
 
-  /* ── BOTTOM BAR ── */
   .bottombar {
     border-top: 1px solid var(--c);
     padding: .38rem 1.6rem;
@@ -255,7 +239,6 @@ HTML_PAGE = """<!DOCTYPE html>
 
 <canvas id="matrix"></canvas>
 
-<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-left">
     <span class="tb-title">PINGBOT</span>
@@ -269,28 +252,26 @@ HTML_PAGE = """<!DOCTYPE html>
 
 <main>
 
-  <!-- LOG -->
   <div class="log-panel">
     <div class="ph">
       <span>SYSTEM BROADCAST LOGS | PING.LOG</span>
       <span class="ph-right">INTERVAL: 60s</span>
     </div>
     <div class="log-body" id="logbox">
-      <div class="le"><span class="ts">{{ boot_time }}</span><span class="msg sys">>> SYSTEM BOOT — pingbot.py loaded</span></div>
-      <div class="le"><span class="ts">{{ boot_time }}</span><span class="msg sys">>> TARGET LINK — [CLASSIFIED] ██████████████</span></div>
-      <div class="le"><span class="ts">{{ boot_time }}</span><span class="msg sys">>> PINGER THREAD — started, delay 10s</span></div>
+      <div class="le"><span class="ts">{{ boot_time }}</span><span class="msg sys">&gt;&gt; SYSTEM BOOT :: pingbot.py loaded</span></div>
+      <div class="le"><span class="ts">{{ boot_time }}</span><span class="msg sys">&gt;&gt; TARGET LINK :: [CLASSIFIED] ██████████████</span></div>
+      <div class="le"><span class="ts">{{ boot_time }}</span><span class="msg sys">&gt;&gt; PINGER THREAD :: started, delay 10s</span></div>
       {% if last_ok == true %}
-      <div class="le"><span class="ts">{{ last_time }}</span><span class="msg ok">>> PING OK — [TARGET CLASSIFIED] [HTTP {{ last_code }}]</span></div>
+      <div class="le"><span class="ts">{{ last_time }}</span><span class="msg ok">&gt;&gt; PING OK :: [TARGET CLASSIFIED] [HTTP {{ last_code }}]</span></div>
       {% elif last_ok == false %}
-      <div class="le"><span class="ts">{{ last_time }}</span><span class="msg err">>> PING FAILED — [TARGET CLASSIFIED] [{{ last_code }}]</span></div>
+      <div class="le"><span class="ts">{{ last_time }}</span><span class="msg err">&gt;&gt; PING FAILED :: [TARGET CLASSIFIED] [{{ last_code }}]</span></div>
       {% else %}
-      <div class="le"><span class="ts">--:--:--</span><span class="msg sys">>> WAITING — first ping in 10s...</span></div>
+      <div class="le"><span class="ts">--:--:--</span><span class="msg sys">&gt;&gt; WAITING :: first ping in 10s...</span></div>
       {% endif %}
       <div class="le"><span class="ts"></span><span class="msg cursor"></span></div>
     </div>
   </div>
 
-  <!-- RIGHT -->
   <div class="right">
 
     <div class="sec">
@@ -346,23 +327,18 @@ HTML_PAGE = """<!DOCTYPE html>
       {% endif %}
     </div>
 
-    <!-- LOBOTOMY RECORDING -->
     <div class="sec">
       <div class="sec-lbl">LOBOTOMY // REC</div>
-
       <div class="lob-header-row">
         <span style="font-size:.58rem;letter-spacing:.14em;color:var(--muted);">SESSION DURATION</span>
         <div class="lob-rec-dot" id="lobDot"></div>
       </div>
-
       <div class="lob-timer-val" id="lobTimer">00:00:00</div>
-
       <div class="lob-viz" id="lobViz"></div>
-
       <div style="border-top:1px solid var(--border);padding-top:.5rem;">
         <div class="dr">
           <span class="dk">STATUS</span>
-          <span class="dv ok" id="lobStatus">● RECORDING</span>
+          <span class="dv ok" id="lobStatus">&#9679; RECORDING</span>
         </div>
         <div class="dr">
           <span class="dk">STARTED</span>
@@ -373,11 +349,9 @@ HTML_PAGE = """<!DOCTYPE html>
           <span class="dv" id="lobFrames">0</span>
         </div>
       </div>
-
-      <button class="lob-btn" id="lobBtn" onclick="lobToggle()">■ STOP RECORDING</button>
+      <button class="lob-btn" id="lobBtn" onclick="lobToggle()">&#9632; STOP RECORDING</button>
     </div>
 
-    <!-- COUNTDOWN -->
     <div class="refresh-sec">
       <div class="refresh-label">PAGE REFRESH COUNTDOWN</div>
       <div class="countdown-wrap">
@@ -392,14 +366,12 @@ HTML_PAGE = """<!DOCTYPE html>
   </div>
 </main>
 
-<!-- WATERMARK -->
 <div style="position:fixed;bottom:2.4rem;left:1.6rem;z-index:999;pointer-events:none;font-family:var(--f);line-height:1.7;">
   <div style="font-size:.58rem;letter-spacing:.18em;color:rgba(0,255,255,0.18);">YAPIMCI</div>
   <div style="font-size:.72rem;letter-spacing:.12em;color:rgba(0,255,255,0.28);text-shadow:0 0 8px rgba(0,255,255,0.15);">@lobotomi_fan</div>
   <div style="font-size:.52rem;letter-spacing:.14em;color:rgba(0,255,255,0.12);margin-top:.15rem;">LOBOTOMY SYSTEMS // 2025</div>
 </div>
 
-<!-- BOTTOM BAR -->
 <div class="bottombar">
   <span><span class="bb-dot"></span>SYSTEM ACTIVE // PING INTERVAL: 60s</span>
   <div class="bb-right">
@@ -410,14 +382,13 @@ HTML_PAGE = """<!DOCTYPE html>
 
 <script>
 (function() {
-  // ── Matrix rain ──
   var canvas = document.getElementById('matrix');
   var ctx = canvas.getContext('2d');
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
   var cols = Math.floor(canvas.width / 18);
   var drops = Array(cols).fill(1);
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&<>[]{}アイウエオカキクケコサシスセソタチツテトナニヌネノ';
+  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&<>[]{}';
   function drawMatrix() {
     ctx.fillStyle = 'rgba(0,0,0,0.05)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -432,8 +403,8 @@ HTML_PAGE = """<!DOCTYPE html>
   }
   setInterval(drawMatrix, 55);
 
-  // ── Saat & Tarih ──
   function pad(n) { return n < 10 ? '0' + n : n; }
+
   function tick() {
     var now = new Date();
     var hms  = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
@@ -446,44 +417,51 @@ HTML_PAGE = """<!DOCTYPE html>
   tick();
   setInterval(tick, 1000);
 
-  // ── Fake log stream ──
   var logbox = document.getElementById('logbox');
   var fakeLogs = [
     { cls:'sys', msgs:[
-      '>> MEM CHECK — heap 42MB / 512MB OK',
-      '>> THREAD POOL — workers: 4 active',
-      '>> NET IFACE — eth0 UP [100Mbps]',
-      '>> DNS RESOLVE — target cached [TTL 60s]',
-      '>> SOCKET — keepalive enabled',
-      '>> SSL HANDSHAKE — TLS 1.3 OK',
-      '>> SCHEDULER — next ping queued',
-      '>> GC CYCLE — freed 1.2MB',
-      '>> ENV LOAD — TARGET_LINK set',
-      '>> WATCHDOG — process healthy',
-      '>> LOG ROTATE — 0 files purged',
-      '>> UPTIME — system stable',
-      '>> CPU — 1.4% user 0.2% sys',
-      '>> DISK IO — 0 queued ops',
-      '>> ROUTE TABLE — default gw OK',
+      '>> MEM CHECK :: heap 42MB / 512MB OK',
+      '>> THREAD POOL :: workers: 4 active',
+      '>> NET IFACE :: eth0 UP [100Mbps]',
+      '>> DNS RESOLVE :: target cached [TTL 60s]',
+      '>> SOCKET :: keepalive enabled',
+      '>> SSL HANDSHAKE :: TLS 1.3 OK',
+      '>> SCHEDULER :: next ping queued',
+      '>> GC CYCLE :: freed 1.2MB',
+      '>> ENV LOAD :: TARGET_LINK set',
+      '>> WATCHDOG :: process healthy',
+      '>> LOG ROTATE :: 0 files purged',
+      '>> UPTIME :: system stable',
+      '>> CPU :: 1.4% user 0.2% sys',
+      '>> DISK IO :: 0 queued ops',
+      '>> ROUTE TABLE :: default gw OK',
+      '>> HEAP ALLOC :: 0 leaks detected',
+      '>> PORT 5000 :: listening OK',
+      '>> IPV4 :: 0.0.0.0 bound',
+      '>> THREAD :: pinger alive',
+      '>> SWAP :: 0MB used',
+      '>> MUTEX :: unlocked',
+      '>> CACHE :: hit ratio 98.2%',
+      '>> SIGNAL :: SIGTERM not received',
+      '>> CONFIG RELOAD :: no changes',
+      '>> RATE LIMIT :: 0/100 used',
+      '>> SESSION :: id:a3f9c2 active',
+      '>> BUFFER FLUSH :: 0 bytes pending',
+      '>> RETRY QUEUE :: empty',
+      '>> PROXY :: direct route OK',
+      '>> TIMESTAMP SYNC :: NTP OK',
     ]},
     { cls:'ok', msgs:[
-      '>> PING OK — [TARGET CLASSIFIED] [HTTP 200]',
-      '>> RESPONSE TIME — 312ms',
-      '>> RESPONSE TIME — 289ms',
-      '>> RESPONSE TIME — 401ms',
-      '>> CONN REUSE — keep-alive hit',
-      '>> PAYLOAD — 1.8KB received',
-      '>> HEADER CHECK — content-type OK',
-      '>> STATUS VERIFIED — service UP',
-    ]},
-    { cls:'sys', msgs:[
-      '>> BUFFER FLUSH — 0 bytes pending',
-      '>> RETRY QUEUE — empty',
-      '>> PROXY — direct route OK',
-      '>> TIMESTAMP SYNC — NTP OK',
-      '>> CONFIG RELOAD — no changes',
-      '>> SESSION — id:a3f9c2 active',
-      '>> RATE LIMIT — 0/100 used',
+      '>> PING OK :: [TARGET CLASSIFIED] [HTTP 200]',
+      '>> RESPONSE TIME :: 312ms',
+      '>> RESPONSE TIME :: 289ms',
+      '>> RESPONSE TIME :: 401ms',
+      '>> CONN REUSE :: keep-alive hit',
+      '>> PAYLOAD :: 1.8KB received',
+      '>> HEADER CHECK :: content-type OK',
+      '>> STATUS VERIFIED :: service UP',
+      '>> HTTP 200 :: target reachable',
+      '>> LATENCY :: within threshold',
     ]},
   ];
 
@@ -499,7 +477,6 @@ HTML_PAGE = """<!DOCTYPE html>
     var cursor = logbox.querySelector('.cursor');
     logbox.insertBefore(le, cursor);
     logbox.scrollTop = logbox.scrollHeight;
-    // max 120 satır tut
     var lines = logbox.querySelectorAll('.le');
     if (lines.length > 120) lines[0].remove();
   }
@@ -510,7 +487,6 @@ HTML_PAGE = """<!DOCTYPE html>
   }
   scheduleLog();
 
-  // ── Countdown ──
   var total = 300;
   var left  = total;
   var cdNum = document.getElementById('cdNum');
@@ -522,7 +498,6 @@ HTML_PAGE = """<!DOCTYPE html>
     if (left <= 0) location.reload();
   }, 1000);
 
-  // ── LOBOTOMY REC ──
   var lobStartTime = Date.now();
   var lobRunning   = true;
   var lobFrames    = 0;
@@ -533,6 +508,11 @@ HTML_PAGE = """<!DOCTYPE html>
 
   var lobViz = document.getElementById('lobViz');
   var lobBars = [];
+
+  var lobStyle = document.createElement('style');
+  lobStyle.textContent = '@keyframes lobWave{0%,100%{transform:scaleY(.1)}50%{transform:scaleY(1)}}';
+  document.head.appendChild(lobStyle);
+
   for (var i = 0; i < 40; i++) {
     var b = document.createElement('div');
     var dur   = (0.4 + Math.random() * 0.8).toFixed(2) + 's';
@@ -546,12 +526,7 @@ HTML_PAGE = """<!DOCTYPE html>
     lobBars.push(b);
   }
 
-  var lobStyle = document.createElement('style');
-  lobStyle.textContent =
-    '@keyframes lobWave{0%,100%{transform:scaleY(.1)}50%{transform:scaleY(1)}}';
-  document.head.appendChild(lobStyle);
-
-  var lobTimerEl = document.getElementById('lobTimer');
+  var lobTimerEl  = document.getElementById('lobTimer');
   var lobFramesEl = document.getElementById('lobFrames');
 
   setInterval(function() {
@@ -570,11 +545,10 @@ HTML_PAGE = """<!DOCTYPE html>
     var btn    = document.getElementById('lobBtn');
     var dot    = document.getElementById('lobDot');
     var status = document.getElementById('lobStatus');
-
     if (!lobRunning) {
-      btn.textContent = '▶ RESUME RECORDING';
+      btn.textContent = '\u25b6 RESUME RECORDING';
       btn.classList.add('resumed');
-      status.textContent = '■ PAUSED';
+      status.textContent = '\u25a0 PAUSED';
       status.className = 'dv';
       dot.style.animation = 'none';
       dot.style.background = 'var(--muted)';
@@ -586,9 +560,9 @@ HTML_PAGE = """<!DOCTYPE html>
     } else {
       var parts = lobTimerEl.textContent.split(':');
       lobStartTime = Date.now() - (+parts[0]*3600 + +parts[1]*60 + +parts[2]) * 1000;
-      btn.textContent = '■ STOP RECORDING';
+      btn.textContent = '\u25a0 STOP RECORDING';
       btn.classList.remove('resumed');
-      status.textContent = '● RECORDING';
+      status.textContent = '\u25cf RECORDING';
       status.className = 'dv ok';
       dot.style.animation = 'lobBlink 1.1s ease-in-out infinite';
       dot.style.background = 'var(--r)';
