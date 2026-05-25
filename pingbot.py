@@ -446,6 +446,70 @@ HTML_PAGE = """<!DOCTYPE html>
   tick();
   setInterval(tick, 1000);
 
+  // ── Fake log stream ──
+  var logbox = document.getElementById('logbox');
+  var fakeLogs = [
+    { cls:'sys', msgs:[
+      '>> MEM CHECK — heap 42MB / 512MB OK',
+      '>> THREAD POOL — workers: 4 active',
+      '>> NET IFACE — eth0 UP [100Mbps]',
+      '>> DNS RESOLVE — target cached [TTL 60s]',
+      '>> SOCKET — keepalive enabled',
+      '>> SSL HANDSHAKE — TLS 1.3 OK',
+      '>> SCHEDULER — next ping queued',
+      '>> GC CYCLE — freed 1.2MB',
+      '>> ENV LOAD — TARGET_LINK set',
+      '>> WATCHDOG — process healthy',
+      '>> LOG ROTATE — 0 files purged',
+      '>> UPTIME — system stable',
+      '>> CPU — 1.4% user 0.2% sys',
+      '>> DISK IO — 0 queued ops',
+      '>> ROUTE TABLE — default gw OK',
+    ]},
+    { cls:'ok', msgs:[
+      '>> PING OK — [TARGET CLASSIFIED] [HTTP 200]',
+      '>> RESPONSE TIME — 312ms',
+      '>> RESPONSE TIME — 289ms',
+      '>> RESPONSE TIME — 401ms',
+      '>> CONN REUSE — keep-alive hit',
+      '>> PAYLOAD — 1.8KB received',
+      '>> HEADER CHECK — content-type OK',
+      '>> STATUS VERIFIED — service UP',
+    ]},
+    { cls:'sys', msgs:[
+      '>> BUFFER FLUSH — 0 bytes pending',
+      '>> RETRY QUEUE — empty',
+      '>> PROXY — direct route OK',
+      '>> TIMESTAMP SYNC — NTP OK',
+      '>> CONFIG RELOAD — no changes',
+      '>> SESSION — id:a3f9c2 active',
+      '>> RATE LIMIT — 0/100 used',
+    ]},
+  ];
+
+  function randomLog() {
+    var group = fakeLogs[Math.floor(Math.random() * fakeLogs.length)];
+    var msg   = group.msgs[Math.floor(Math.random() * group.msgs.length)];
+    var now   = new Date();
+    var ts    = pad(now.getDate()) + '.' + pad(now.getMonth()+1) + '.' + now.getFullYear()
+                + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    var le = document.createElement('div');
+    le.className = 'le';
+    le.innerHTML = '<span class="ts">' + ts + '</span><span class="msg ' + group.cls + '">' + msg + '</span>';
+    var cursor = logbox.querySelector('.cursor');
+    logbox.insertBefore(le, cursor);
+    logbox.scrollTop = logbox.scrollHeight;
+    // max 120 satır tut
+    var lines = logbox.querySelectorAll('.le');
+    if (lines.length > 120) lines[0].remove();
+  }
+
+  function scheduleLog() {
+    var delay = 800 + Math.random() * 3200;
+    setTimeout(function(){ randomLog(); scheduleLog(); }, delay);
+  }
+  scheduleLog();
+
   // ── Countdown ──
   var total = 300;
   var left  = total;
