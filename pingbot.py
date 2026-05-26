@@ -64,12 +64,19 @@ FAKE_LOGS = [
 def log_stream():
     def generate():
         while True:
-            delay = random.uniform(0.9, 3.5)
+            # Gecikme süresi her seferinde daha dinamik hesaplanır
+            delay = random.uniform(0.5, 2.5)
             time.sleep(delay)
-            cls, msg = random.choice(FAKE_LOGS)
-            ts = time.strftime('%d.%m.%Y %H:%M:%S')
-            line = f"{ts}|{cls}|{msg}"
-            yield f"data: {line}\n\n"
+            
+            # Tek seferde rastgele sayıda (1 ila 4 arası) log satırı fırlatarak akışı düzensizleştirir
+            num_logs = random.randint(1, 4)
+            chosen_logs = random.choices(FAKE_LOGS, k=num_logs)
+            
+            for cls, msg in chosen_logs:
+                ts = time.strftime('%d.%m.%Y %H:%M:%S')
+                line = f"{ts}|{cls}|{msg}"
+                yield f"data: {line}\n\n"
+                
     return Response(stream_with_context(generate()),
                     mimetype='text/event-stream',
                     headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
@@ -337,24 +344,30 @@ HTML_PAGE = """<!DOCTYPE html>
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
   var es = new EventSource('/log-stream');
-  var MAX_LINES = 40;
+  var MAX_LINES = 35; // Panel yüksekliğine tam oturan limit değer
+
   es.onmessage = function(e) {
     var parts = e.data.split('|');
     var ts  = parts[0];
     var cls = parts[1];
     var msg = parts[2];
+    
     var lines = logbox.querySelectorAll('.le');
+    
+    // Ekrandaki satırlar limiti aşarsa kutuyu temizle ve yeniden başla
     if(lines.length >= MAX_LINES) {
-      // Doldu - hepsini sil, cursor hariç
       var toRemove = [];
       lines.forEach(function(l){ if(l.id !== 'cursorLine') toRemove.push(l); });
       toRemove.forEach(function(l){ l.remove(); });
-      // Temizlendi mesaji ekle
+      
+      // Temizlendi uyarısını fırlat
       var sep = document.createElement('div');
       sep.className = 'le';
-      sep.innerHTML = '<span class="ts">--:--:--</span><span class="msg sys">>> LOG CLEARED :: buffer reset</span>';
+      sep.innerHTML = '<span class="ts">'+ts+'</span><span class="msg sys">>> SCREEN RESET :: log buffer wiped & restarted</span>';
       logbox.insertBefore(sep, cursorLine);
     }
+    
+    // Log satırını oluştur ve ekle
     var le = document.createElement('div');
     le.className = 'le';
     le.innerHTML = '<span class="ts">'+ts+'</span><span class="msg '+cls+'">'+msg+'</span>';
@@ -405,15 +418,15 @@ HTML_PAGE = """<!DOCTYPE html>
     var dot=document.getElementById('lobDot');
     var st=document.getElementById('lobStatus');
     if(!lobRunning){
-      btn.textContent='\u25b6 RESUME RECORDING'; btn.classList.add('resumed');
-      st.textContent='\u25a0 PAUSED'; st.className='dv';
+      btn.textContent='\\u25b6 RESUME RECORDING'; btn.classList.add('resumed');
+      st.textContent='\\u25a0 PAUSED'; st.className='dv';
       dot.style.animation='none'; dot.style.background='var(--muted)'; dot.style.boxShadow='none';
       lobBars.forEach(function(b){ b.style.animation='none'; b.style.transform='scaleY(0.08)'; });
     } else {
       var p=lobTimerEl.textContent.split(':');
       lobStartTime=Date.now()-(+p[0]*3600 + +p[1]*60 + +p[2])*1000;
-      btn.textContent='\u25a0 STOP RECORDING'; btn.classList.remove('resumed');
-      st.textContent='\u25cf RECORDING'; st.className='dv ok';
+      btn.textContent='\\u25a0 STOP RECORDING'; btn.classList.remove('resumed');
+      st.textContent='\\u25cf RECORDING'; st.className='dv ok';
       dot.style.animation='lobBlink 1.1s ease-in-out infinite';
       dot.style.background='var(--r)'; dot.style.boxShadow='0 0 8px var(--r)';
       lobBars.forEach(function(b){
