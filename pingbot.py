@@ -64,11 +64,9 @@ FAKE_LOGS = [
 def log_stream():
     def generate():
         while True:
-            # Gecikme süresi her seferinde daha dinamik hesaplanır
             delay = random.uniform(0.5, 2.5)
             time.sleep(delay)
             
-            # Tek seferde rastgele sayıda (1 ila 4 arası) log satırı fırlatarak akışı düzensizleştirir
             num_logs = random.randint(1, 4)
             chosen_logs = random.choices(FAKE_LOGS, k=num_logs)
             
@@ -344,7 +342,7 @@ HTML_PAGE = """<!DOCTYPE html>
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
   var es = new EventSource('/log-stream');
-  var MAX_LINES = 35; // Panel yüksekliğine tam oturan limit değer
+  var MAX_LINES = 15; // İstediğiniz gibi maksimum 15 satır sınırı çekildi
 
   es.onmessage = function(e) {
     var parts = e.data.split('|');
@@ -354,20 +352,18 @@ HTML_PAGE = """<!DOCTYPE html>
     
     var lines = logbox.querySelectorAll('.le');
     
-    // Ekrandaki satırlar limiti aşarsa kutuyu temizle ve yeniden başla
+    // Satır sayısı 15'e ulaşırsa ekran tamamen boşalır ve temizlenir
     if(lines.length >= MAX_LINES) {
       var toRemove = [];
       lines.forEach(function(l){ if(l.id !== 'cursorLine') toRemove.push(l); });
       toRemove.forEach(function(l){ l.remove(); });
       
-      // Temizlendi uyarısını fırlat
       var sep = document.createElement('div');
       sep.className = 'le';
       sep.innerHTML = '<span class="ts">'+ts+'</span><span class="msg sys">>> SCREEN RESET :: log buffer wiped & restarted</span>';
       logbox.insertBefore(sep, cursorLine);
     }
     
-    // Log satırını oluştur ve ekle
     var le = document.createElement('div');
     le.className = 'le';
     le.innerHTML = '<span class="ts">'+ts+'</span><span class="msg '+cls+'">'+msg+'</span>';
