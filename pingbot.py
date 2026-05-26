@@ -64,14 +64,16 @@ FAKE_LOGS = [
 def log_stream():
     def generate():
         while True:
-            delay = random.uniform(0.5, 2.5)
+            # Gecikme aralığı daha akıcı hale getirildi (Donma hissini engeller)
+            delay = random.uniform(0.4, 1.2)
             time.sleep(delay)
             
-            num_logs = random.randint(1, 4)
+            # Aynı anda en fazla 2 adet log gönderilir
+            num_logs = random.randint(1, 2)
             chosen_logs = random.choices(FAKE_LOGS, k=num_logs)
             
             for cls, msg in chosen_logs:
-                ts = time.strftime('%d.%m.%Y %H:%M:%S')
+                ts = time.strftime('%H:%M:%S')
                 line = f"{ts}|{cls}|{msg}"
                 yield f"data: {line}\n\n"
                 
@@ -338,39 +340,49 @@ HTML_PAGE = """<!DOCTYPE html>
   }
   tick(); setInterval(tick,1000);
 
-  // SSE log stream
+  // SSE log stream (Geliştirilmiş bağlantı ve akış kontrolü)
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
-  var es = new EventSource('/log-stream');
-  var MAX_LINES = 15; // İstediğiniz gibi maksimum 15 satır sınırı çekildi
+  var MAX_LINES = 15;
+  var es;
 
-  es.onmessage = function(e) {
-    var parts = e.data.split('|');
-    var ts  = parts[0];
-    var cls = parts[1];
-    var msg = parts[2];
+  function connectLogStream() {
+    es = new EventSource('/log-stream');
     
-    var lines = logbox.querySelectorAll('.le');
-    
-    // Satır sayısı 15'e ulaşırsa ekran tamamen boşalır ve temizlenir
-    if(lines.length >= MAX_LINES) {
-      var toRemove = [];
-      lines.forEach(function(l){ if(l.id !== 'cursorLine') toRemove.push(l); });
-      toRemove.forEach(function(l){ l.remove(); });
+    es.onmessage = function(e) {
+      var parts = e.data.split('|');
+      var ts  = parts[0];
+      var cls = parts[1];
+      var msg = parts[2];
       
-      var sep = document.createElement('div');
-      sep.className = 'le';
-      sep.innerHTML = '<span class="ts">'+ts+'</span><span class="msg sys">>> SCREEN RESET :: log buffer wiped & restarted</span>';
-      logbox.insertBefore(sep, cursorLine);
-    }
-    
-    var le = document.createElement('div');
-    le.className = 'le';
-    le.innerHTML = '<span class="ts">'+ts+'</span><span class="msg '+cls+'">'+msg+'</span>';
-    logbox.insertBefore(le, cursorLine);
-    logbox.scrollTop = logbox.scrollHeight;
-  };
-  es.onerror = function(){ es.close(); };
+      var lines = logbox.querySelectorAll('.le');
+      
+      if(lines.length >= MAX_LINES) {
+        var toRemove = [];
+        lines.forEach(function(l){ if(l.id !== 'cursorLine') toRemove.push(l); });
+        toRemove.forEach(function(l){ l.remove(); });
+        
+        var sep = document.createElement('div');
+        sep.className = 'le';
+        sep.innerHTML = '<span class="ts">'+ts+'</span><span class="msg sys">>> SCREEN RESET :: log buffer wiped & restarted</span>';
+        logbox.insertBefore(sep, cursorLine);
+      }
+      
+      var le = document.createElement('div');
+      le.className = 'le';
+      le.innerHTML = '<span class="ts">'+ts+'</span><span class="msg '+cls+'">'+msg+'</span>';
+      logbox.insertBefore(le, cursorLine);
+      logbox.scrollTop = logbox.scrollHeight;
+    };
+
+    // Durma/Donma hatası için otomatik yeniden bağlanma tetikleyicisi
+    es.onerror = function() {
+      es.close();
+      setTimeout(connectLogStream, 2000); // Bağlantı koparsa 2 sn sonra otomatik canlandırır
+    };
+  }
+
+  connectLogStream();
 
   // Countdown
   var total=300, left=total;
@@ -438,7 +450,7 @@ HTML_PAGE = """<!DOCTYPE html>
 </html>
 """
 
-BOOT_TIME = time.strftime('%d.%m.%Y %H:%M:%S')
+BOOT_TIME = time.strftime('%H:%M:%S')
 
 def pinger():
     time.sleep(10)
@@ -446,13 +458,13 @@ def pinger():
         if TARGET_LINK:
             try:
                 resp = requests.get(TARGET_LINK, timeout=15)
-                ping_status["last_time"] = time.strftime('%d.%m.%Y %H:%M:%S')
+                ping_status["last_time"] = time.strftime('%H:%M:%S')
                 ping_status["last_code"] = resp.status_code
                 ping_status["last_ok"]   = True
                 ping_status["success"]  += 1
                 print(f"[{ping_status['last_time']}] OK ({resp.status_code})")
             except Exception as e:
-                ping_status["last_time"] = time.strftime('%d.%m.%Y %H:%M:%S')
+                ping_status["last_time"] = time.strftime('%H:%M:%S')
                 ping_status["last_code"] = "HATA"
                 ping_status["last_ok"]   = False
                 print(f"[{ping_status['last_time']}] FAIL: {e}")
