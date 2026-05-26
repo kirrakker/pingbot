@@ -52,6 +52,14 @@ def chat_send():
 
 # ── FAKE LOGS ──
 FAKE_LOGS = [
+    ("user", ">> QUERY :: Kullanıcının egosu mu kırılmıştı?"),
+    ("user", ">> QUERY :: Kullanıcı ne hissediyordu?"),
+    ("user", ">> QUERY :: Kullanıcı egolu muydu?"),
+    ("user", ">> QUERY :: Kullanıcı neden hep aynı yere dönüyordu?"),
+    ("user", ">> QUERY :: Kullanıcı ne yapmalıydı?"),
+    ("user", ">> QUERY :: Kullanıcı nasıl yapmalıydı?"),
+    ("user", ">> QUERY :: Kullanıcı bir şey yapmalı mıydı?"),
+    ("user", ">> QUERY :: Kullanıcı kendini tanıyor muydu?"),
     ("sys", ">> MEM CHECK :: heap 42MB / 512MB OK"),
     ("sys", ">> THREAD POOL :: workers: 4 active"),
     ("sys", ">> NET IFACE :: eth0 UP [100Mbps]"),
@@ -82,16 +90,6 @@ FAKE_LOGS = [
     ("sys", ">> RETRY QUEUE :: empty"),
     ("sys", ">> PROXY :: direct route OK"),
     ("sys", ">> TIMESTAMP SYNC :: NTP OK"),
-    ("ok",  ">> PING OK :: [TARGET CLASSIFIED] [HTTP 200]"),
-    ("ok",  ">> RESPONSE TIME :: 312ms"),
-    ("ok",  ">> RESPONSE TIME :: 289ms"),
-    ("ok",  ">> RESPONSE TIME :: 401ms"),
-    ("ok",  ">> CONN REUSE :: keep-alive hit"),
-    ("ok",  ">> PAYLOAD :: 1.8KB received"),
-    ("ok",  ">> HEADER CHECK :: content-type OK"),
-    ("ok",  ">> STATUS VERIFIED :: service UP"),
-    ("ok",  ">> HTTP 200 :: target reachable"),
-    ("ok",  ">> LATENCY :: within threshold"),
 ]
 
 ULTRAKILL_LINES = [
