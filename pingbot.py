@@ -258,7 +258,7 @@ HTML_PAGE = """<!DOCTYPE html>
   .np-content-text {
     font-size: .72rem; color: #ffffff; line-height: 1.75;
     letter-spacing: .04em; white-space: pre-wrap; word-break: break-word;
-    text-shadow: 0 0 6px rgba(0,255,136,0.4);
+    text-shadow: 0 0 6px rgba(255,255,255,0.5);
   }
   .np-content-text.loading { color: var(--muted); font-style: italic; text-shadow: none; }
   .np-content-text.error   { color: var(--r); text-shadow: none; }
@@ -331,11 +331,11 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <!-- ── ŞU SIRALAR LOBOTOMİ ── -->
     <div class="now-playing-sec">
-      <div class="np-sec-lbl">ŞU SIRALAR LOBOTOMİ</div>
+      <div class="np-sec-lbl">ŞU SIRALAR <span style="color:var(--c);text-shadow:0 0 12px var(--c),0 0 28px rgba(0,255,255,0.6);">LOBOTOMİ</span></div>
       <div class="np-inner">
         <!-- Resim: src'yi istediğin imgur linki ile değiştir -->
         <div class="np-img-wrap">
-          <img id="npImg" src="https://imgur.com/gzsKFml.png" alt="şu sıralar" />
+          <img id="npImg" src="https://i.imgur.com/4VfmCSF.png" alt="şu sıralar" />
         </div>
         <div class="np-text-area">
           <div class="np-content-text loading" id="npText">// FETCHING DATA...</div>
@@ -379,9 +379,9 @@ HTML_PAGE = """<!DOCTYPE html>
       {% endif %}
     </div>
 
-    <!-- ── Şu Sıralar En Sevdiğim Kişi ── -->
+    <!-- ── EN SEVDİĞİM KİŞİ ── -->
     <div class="fav-person-sec sec">
-      <div class="sec-lbl">ŞU SIRALAR EN SEVDİĞİM KİŞİ</div>
+      <div class="sec-lbl">EN SEVDİĞİM KİŞİ</div>
       <div class="fav-person-row">
         <span class="fav-person-label">ŞU AN ::</span>
         <span class="fav-person-name" id="favPersonEl"></span>
@@ -432,10 +432,10 @@ HTML_PAGE = """<!DOCTYPE html>
 // ╚══════════════════════════════════════════╝
 
 // En sevdiğin kişi — buradan değiştir:
-const FAV_PERSON = "xxx";
+const FAV_PERSON = "XXXXXXX";
 
 // "Şu Sıralar" metninin çekileceği GitHub raw .txt URL'si:
-const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot/refs/heads/main/mesaj.txt";
+const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/KULLANICI/REPO/main/su_siralar.txt";
 
 // "Şu Sıralar" görseli için imgur linki — npImg src'sini de değiştirebilirsin,
 // ya da bu sabiti JS tarafından atamak istersen aşağıdaki satırı aç:
@@ -444,7 +444,7 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
 // ════════════════════════════════════════════
 
 (function() {
-  // ── ŞU SIRALAR EN SEVDİĞİM KİŞİ ──
+  // ── EN SEVDİĞİM KİŞİ ──
   document.getElementById('favPersonEl').textContent = FAV_PERSON;
 
   // ── ŞU SIRALAR LOBOTOMİ :: GitHub'dan metin çek ──
