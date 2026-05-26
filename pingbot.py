@@ -397,26 +397,24 @@ HTML_PAGE = """<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- ── LOBOTOMY // REC ── -->
-    <div class="sec" style="margin:0 1rem 1rem;border:1px solid var(--border);flex-shrink:0;">
-      <div class="sec-lbl">LOBOTOMY // REC</div>
-      <div class="lob-header-row">
-        <span style="font-size:.58rem;letter-spacing:.14em;color:var(--muted);">SESSION DURATION</span>
-        <div class="lob-rec-dot" id="lobDot"></div>
+    <!-- ── ZİYARETÇİ CHAT ── -->
+    <div class="visitor-chat-sec">
+      <div class="vc-header">
+        <span class="vc-title">// VISITOR CHAT</span>
+        <span class="vc-live"><span class="vc-dot"></span>LIVE</span>
       </div>
-      <div class="lob-timer-val" id="lobTimer">00:00:00</div>
-      <div class="lob-viz" id="lobViz"></div>
-      <div style="border-top:1px solid var(--border);padding-top:.5rem;">
-        <div class="dr">
-          <span class="dk">STATUS</span>
-          <span class="dv ok" id="lobStatus">&#9679; RECORDING</span>
-        </div>
-        <div class="dr">
-          <span class="dk">STARTED</span>
-          <span class="dv" id="lobStart">--:--:--</span>
-        </div>
+      <div class="vc-messages" id="vcBox">
+        <div class="vcm system"><span class="vts">--:--:--</span><span class="vtx">>> SYSTEM :: yükleniyor...</span></div>
       </div>
-      <button class="lob-btn" id="lobBtn" onclick="lobToggle()">&#9632; STOP RECORDING</button>
+      <div class="vc-counter">
+        <span class="vck-lbl">TOPLAM MESAJ</span>
+        <span class="vck-val" id="vcCount">0000</span>
+      </div>
+      <div class="vc-input-row">
+        <input id="vcInput" class="vc-input" maxlength="140" placeholder=">> mesajını yaz..." autocomplete="off"/>
+        <button class="vc-send" onclick="vcSend()">SEND &#9658;</button>
+      </div>
+      <div class="vc-status"><span style="color:var(--pink)">loblob</span> <span id="vcStat">>> READY</span></div>
     </div>
   </div>
 
@@ -455,24 +453,25 @@ HTML_PAGE = """<!DOCTYPE html>
       </div>
     </div>
 
-    <!-- ── ZİYARETÇİ CHAT ── -->
-    <div class="visitor-chat-sec">
-      <div class="vc-header">
-        <span class="vc-title">// VISITOR CHAT</span>
-        <span class="vc-live"><span class="vc-dot"></span>LIVE</span>
+    <div class="sec">
+      <div class="sec-lbl">LOBOTOMY // REC</div>
+      <div class="lob-header-row">
+        <span style="font-size:.58rem;letter-spacing:.14em;color:var(--muted);">SESSION DURATION</span>
+        <div class="lob-rec-dot" id="lobDot"></div>
       </div>
-      <div class="vc-messages" id="vcBox">
-        <div class="vcm system"><span class="vts">--:--:--</span><span class="vtx">>> SYSTEM :: yükleniyor...</span></div>
+      <div class="lob-timer-val" id="lobTimer">00:00:00</div>
+      <div class="lob-viz" id="lobViz"></div>
+      <div style="border-top:1px solid var(--border);padding-top:.5rem;">
+        <div class="dr">
+          <span class="dk">STATUS</span>
+          <span class="dv ok" id="lobStatus">&#9679; RECORDING</span>
+        </div>
+        <div class="dr">
+          <span class="dk">STARTED</span>
+          <span class="dv" id="lobStart">--:--:--</span>
+        </div>
       </div>
-      <div class="vc-counter">
-        <span class="vck-lbl">TOPLAM MESAJ</span>
-        <span class="vck-val" id="vcCount">0000</span>
-      </div>
-      <div class="vc-input-row">
-        <input id="vcInput" class="vc-input" maxlength="140" placeholder=">> mesajını yaz..." autocomplete="off"/>
-        <button class="vc-send" onclick="vcSend()">SEND &#9658;</button>
-      </div>
-      <div class="vc-status"><span style="color:var(--pink)">loblob</span> <span id="vcStat">>> READY</span></div>
+      <button class="lob-btn" id="lobBtn" onclick="lobToggle()">&#9632; STOP RECORDING</button>
     </div>
   </div>
 </main>
