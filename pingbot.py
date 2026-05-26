@@ -120,7 +120,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta http-equiv="refresh" content="1440">
+<meta http-equiv="refresh" content="43200">
 <title>PINGBOT // SYSTEM STATUS</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
@@ -226,17 +226,27 @@ HTML_PAGE = """<!DOCTYPE html>
   /* ── YENİ BÖLÜMLER ── */
   .now-playing-sec {
     border-bottom: 1px solid var(--border);
-    padding: 1rem 1.2rem;
+    padding: 1.2rem 1.4rem 1.4rem;
+    flex-shrink: 0;
+  }
+  .np-sec-lbl {
+    font-size: .78rem; letter-spacing: .22em;
+    color: var(--g); text-shadow: 0 0 8px var(--g);
+    margin-bottom: .9rem;
+    animation: npLblBlink 2.8s ease-in-out infinite;
+  }
+  @keyframes npLblBlink {
+    0%,100% { opacity:1; text-shadow: 0 0 8px var(--g), 0 0 20px rgba(0,255,136,0.4); }
+    50%      { opacity:.65; text-shadow: 0 0 4px var(--g); }
   }
   .np-inner {
-    display: flex; align-items: flex-start; gap: .85rem; margin-top: .2rem;
+    display: flex; align-items: flex-start; gap: .85rem;
   }
   .np-img-wrap {
     flex-shrink: 0;
-    width: 54px; height: 54px;
+    width: 72px; height: 72px;
     border: 1px solid var(--border);
     overflow: hidden;
-    position: relative;
   }
   .np-img-wrap img {
     width: 100%; height: 100%; object-fit: cover;
@@ -246,11 +256,12 @@ HTML_PAGE = """<!DOCTYPE html>
     flex: 1; min-width: 0;
   }
   .np-content-text {
-    font-size: .68rem; color: var(--cd); line-height: 1.65;
+    font-size: .72rem; color: var(--g); line-height: 1.75;
     letter-spacing: .04em; white-space: pre-wrap; word-break: break-word;
+    text-shadow: 0 0 6px rgba(0,255,136,0.4);
   }
-  .np-content-text.loading { color: var(--muted); font-style: italic; }
-  .np-content-text.error   { color: var(--r); }
+  .np-content-text.loading { color: var(--muted); font-style: italic; text-shadow: none; }
+  .np-content-text.error   { color: var(--r); text-shadow: none; }
 
   .fav-person-sec {
     border-bottom: 1px solid var(--border);
@@ -264,15 +275,15 @@ HTML_PAGE = """<!DOCTYPE html>
     font-size: .65rem; color: var(--muted); letter-spacing: .1em; flex-shrink: 0;
   }
   .fav-person-name {
-    font-size: .88rem; color: var(--c);
-    text-shadow: 0 0 10px var(--c), 0 0 22px rgba(0,255,255,0.35);
+    font-size: .88rem; color: #ff69b4;
+    text-shadow: 0 0 10px #ff69b4, 0 0 22px rgba(255,105,180,0.4);
     letter-spacing: .12em;
+    animation: namePulse 2.6s ease-in-out infinite;
   }
   @keyframes namePulse {
-    0%,100% { text-shadow: 0 0 8px var(--c), 0 0 18px rgba(0,255,255,0.3); }
-    50%      { text-shadow: 0 0 14px var(--c), 0 0 30px rgba(0,255,255,0.6); }
+    0%,100% { text-shadow: 0 0 8px #ff69b4, 0 0 18px rgba(255,105,180,0.35); opacity:1; }
+    50%      { text-shadow: 0 0 16px #ff69b4, 0 0 34px rgba(255,105,180,0.65); opacity:.8; }
   }
-  .fav-person-name { animation: namePulse 3s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -320,7 +331,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <!-- ── ŞU SIRALAR LOBOTOMİ ── -->
     <div class="now-playing-sec">
-      <div class="sec-lbl">ŞU SIRALAR LOBOTOMİ</div>
+      <div class="np-sec-lbl">ŞU SIRALAR LOBOTOMİ</div>
       <div class="np-inner">
         <!-- Resim: src'yi istediğin imgur linki ile değiştir -->
         <div class="np-img-wrap">
@@ -368,7 +379,7 @@ HTML_PAGE = """<!DOCTYPE html>
       {% endif %}
     </div>
 
-    <!-- ── EN SEVDİĞİM KİŞİ ── -->
+    <!-- ── Şu Sıralar En Sevdiğim Kişi ── -->
     <div class="fav-person-sec sec">
       <div class="sec-lbl">EN SEVDİĞİM KİŞİ</div>
       <div class="fav-person-row">
@@ -409,7 +420,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <div class="bottombar">
   <span><span class="bb-dot"></span>SYSTEM ACTIVE // PING INTERVAL: 60s</span>
   <div class="bb-right">
-    <span style="color:var(--cd);">REFRESH <span id="cdNum" style="color:var(--c);text-shadow:0 0 6px var(--c);">300</span>s <span class="cd-bar-track"><span class="cd-bar-fill" id="cdBar" style="width:100%;display:block;"></span></span></span>
+    <span style="color:var(--cd);">REFRESH <span id="cdNum" style="color:var(--c);text-shadow:0 0 6px var(--c);">43200</span>s <span class="cd-bar-track"><span class="cd-bar-fill" id="cdBar" style="width:100%;display:block;"></span></span></span>
     <span id="bbDate">----/--/--</span>
     <span id="bbTime">--:--:--</span>
   </div>
@@ -421,7 +432,7 @@ HTML_PAGE = """<!DOCTYPE html>
 // ╚══════════════════════════════════════════╝
 
 // En sevdiğin kişi — buradan değiştir:
-const FAV_PERSON = "XXXXXXX";
+const FAV_PERSON = "xxx";
 
 // "Şu Sıralar" metninin çekileceği GitHub raw .txt URL'si:
 const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/KULLANICI/REPO/main/su_siralar.txt";
@@ -485,7 +496,7 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/KULLANICI/REPO/ma
 
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
-  var MAX_LINES = 15;
+  var MAX_LINES = 3;
   var es;
 
   function connectLogStream() {
@@ -520,7 +531,7 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/KULLANICI/REPO/ma
   }
   connectLogStream();
 
-  var total=300, left=total;
+  var total=43200, left=total;
   var cdNum=document.getElementById('cdNum');
   var cdBar=document.getElementById('cdBar');
   setInterval(function(){
