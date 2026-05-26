@@ -180,7 +180,7 @@ HTML_PAGE = """<!DOCTYPE html>
   .tb-clock { font-size: .9rem; text-shadow: 0 0 10px var(--c); letter-spacing: .1em; }
   .tb-date  { font-size: .65rem; color: var(--cd); letter-spacing: .1em; }
   main { flex: 1; display: grid; grid-template-columns: 1fr 360px; overflow: hidden; min-height: 0; }
-  .log-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+  .log-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; min-height: 0; }
   .ph {
     font-size: .7rem; letter-spacing: .18em; padding: .55rem 1.4rem;
     border-bottom: 1px solid var(--border); background: var(--panel);
@@ -315,7 +315,7 @@ HTML_PAGE = """<!DOCTYPE html>
   }
 
   /* ── ZİYARETÇİ CHAT ── */
-  .visitor-chat-sec { border-bottom: 1px solid var(--border); padding: .6rem 1rem .8rem; }
+  .visitor-chat-sec { border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); padding: .6rem 1rem .8rem; flex-shrink: 0; }
   .vc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
   .vc-title { font-size:.62rem; letter-spacing:.2em; color:var(--c); text-shadow:0 0 6px var(--c); }
   .vc-live { display:flex; align-items:center; gap:.35rem; font-size:.58rem; color:var(--g); letter-spacing:.12em; }
@@ -396,6 +396,26 @@ HTML_PAGE = """<!DOCTYPE html>
         </div>
       </div>
     </div>
+
+    <!-- ── ZİYARETÇİ CHAT ── -->
+    <div class="visitor-chat-sec">
+      <div class="vc-header">
+        <span class="vc-title">// VISITOR CHAT</span>
+        <span class="vc-live"><span class="vc-dot"></span>LIVE</span>
+      </div>
+      <div class="vc-messages" id="vcBox">
+        <div class="vcm system"><span class="vts">--:--:--</span><span class="vtx">>> SYSTEM :: yükleniyor...</span></div>
+      </div>
+      <div class="vc-counter">
+        <span class="vck-lbl">TOPLAM MESAJ</span>
+        <span class="vck-val" id="vcCount">0000</span>
+      </div>
+      <div class="vc-input-row">
+        <input id="vcInput" class="vc-input" maxlength="140" placeholder=">> mesajını yaz..." autocomplete="off"/>
+        <button class="vc-send" onclick="vcSend()">SEND &#9658;</button>
+      </div>
+      <div class="vc-status"><span style="color:var(--pink)">loblob</span> <span id="vcStat">>> READY</span></div>
+    </div>
   </div>
 
   <div class="right">
@@ -431,26 +451,6 @@ HTML_PAGE = """<!DOCTYPE html>
         <span class="fav-person-label">ŞU AN ::</span>
         <span class="fav-person-name" id="favPersonEl"></span>
       </div>
-    </div>
-
-    <!-- ── ZİYARETÇİ CHAT ── -->
-    <div class="visitor-chat-sec">
-      <div class="vc-header">
-        <span class="vc-title">// VISITOR CHAT</span>
-        <span class="vc-live"><span class="vc-dot"></span>LIVE</span>
-      </div>
-      <div class="vc-messages" id="vcBox">
-        <div class="vcm system"><span class="vts">--:--:--</span><span class="vtx">>> SYSTEM :: yükleniyor...</span></div>
-      </div>
-      <div class="vc-counter">
-        <span class="vck-lbl">TOPLAM MESAJ</span>
-        <span class="vck-val" id="vcCount">0000</span>
-      </div>
-      <div class="vc-input-row">
-        <input id="vcInput" class="vc-input" maxlength="140" placeholder=">> mesajını yaz..." autocomplete="off"/>
-        <button class="vc-send" onclick="vcSend()">SEND &#9658;</button>
-      </div>
-      <div class="vc-status"><span style="color:var(--pink)">loblob</span> <span id="vcStat">>> READY</span></div>
     </div>
 
     <div class="sec">
