@@ -222,6 +222,57 @@ HTML_PAGE = """<!DOCTYPE html>
   }
   .bb-right { display: flex; gap: 1.5rem; align-items: center; }
   .bb-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--g); box-shadow: 0 0 6px var(--g); margin-right: .4rem; animation: glow-g 1.4s ease-in-out infinite; }
+
+  /* ── YENİ BÖLÜMLER ── */
+  .now-playing-sec {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.2rem;
+  }
+  .np-inner {
+    display: flex; align-items: flex-start; gap: .85rem; margin-top: .2rem;
+  }
+  .np-img-wrap {
+    flex-shrink: 0;
+    width: 54px; height: 54px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+  }
+  .np-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block; opacity: .88;
+  }
+  .np-text-area {
+    flex: 1; min-width: 0;
+  }
+  .np-content-text {
+    font-size: .68rem; color: var(--cd); line-height: 1.65;
+    letter-spacing: .04em; white-space: pre-wrap; word-break: break-word;
+  }
+  .np-content-text.loading { color: var(--muted); font-style: italic; }
+  .np-content-text.error   { color: var(--r); }
+
+  .fav-person-sec {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.2rem;
+  }
+  .fav-person-row {
+    display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap;
+    margin-top: .15rem;
+  }
+  .fav-person-label {
+    font-size: .65rem; color: var(--muted); letter-spacing: .1em; flex-shrink: 0;
+  }
+  .fav-person-name {
+    font-size: .88rem; color: var(--c);
+    text-shadow: 0 0 10px var(--c), 0 0 22px rgba(0,255,255,0.35);
+    letter-spacing: .12em;
+  }
+  @keyframes namePulse {
+    0%,100% { text-shadow: 0 0 8px var(--c), 0 0 18px rgba(0,255,255,0.3); }
+    50%      { text-shadow: 0 0 14px var(--c), 0 0 30px rgba(0,255,255,0.6); }
+  }
+  .fav-person-name { animation: namePulse 3s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -266,6 +317,20 @@ HTML_PAGE = """<!DOCTYPE html>
       {% endif %}
       <div class="le" id="cursorLine"><span class="ts"></span><span class="msg cursor"></span></div>
     </div>
+
+    <!-- ── ŞU SIRALAR LOBOTOMİ ── -->
+    <div class="now-playing-sec">
+      <div class="sec-lbl">ŞU SIRALAR LOBOTOMİ</div>
+      <div class="np-inner">
+        <!-- Resim: src'yi istediğin imgur linki ile değiştir -->
+        <div class="np-img-wrap">
+          <img id="npImg" src="https://i.imgur.com/4VfmCSF.png" alt="şu sıralar" />
+        </div>
+        <div class="np-text-area">
+          <div class="np-content-text loading" id="npText">// FETCHING DATA...</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="right">
@@ -301,6 +366,15 @@ HTML_PAGE = """<!DOCTYPE html>
         <div class="uptime-track"><div class="uptime-fill" style="width:{{ (success/total*100)|int }}%"></div></div>
       </div>
       {% endif %}
+    </div>
+
+    <!-- ── EN SEVDİĞİM KİŞİ ── -->
+    <div class="fav-person-sec sec">
+      <div class="sec-lbl">EN SEVDİĞİM KİŞİ</div>
+      <div class="fav-person-row">
+        <span class="fav-person-label">ŞU AN ::</span>
+        <span class="fav-person-name" id="favPersonEl"></span>
+      </div>
     </div>
 
     <div class="sec">
@@ -342,7 +416,44 @@ HTML_PAGE = """<!DOCTYPE html>
 </div>
 
 <script>
+// ╔══════════════════════════════════════════╗
+// ║  KOLAY DEĞİŞTİRİLEBİLİR SABİTLER        ║
+// ╚══════════════════════════════════════════╝
+
+// En sevdiğin kişi — buradan değiştir:
+const FAV_PERSON = "XXXXXXX";
+
+// "Şu Sıralar" metninin çekileceği GitHub raw .txt URL'si:
+const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/KULLANICI/REPO/main/su_siralar.txt";
+
+// "Şu Sıralar" görseli için imgur linki — npImg src'sini de değiştirebilirsin,
+// ya da bu sabiti JS tarafından atamak istersen aşağıdaki satırı aç:
+// document.getElementById('npImg').src = "https://i.imgur.com/XXXXX.png";
+
+// ════════════════════════════════════════════
+
 (function() {
+  // ── EN SEVDİĞİM KİŞİ ──
+  document.getElementById('favPersonEl').textContent = FAV_PERSON;
+
+  // ── ŞU SIRALAR LOBOTOMİ :: GitHub'dan metin çek ──
+  var npText = document.getElementById('npText');
+  fetch(NOW_PLAYING_TXT_URL)
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.text();
+    })
+    .then(function(txt) {
+      npText.classList.remove('loading', 'error');
+      npText.textContent = txt.trim();
+    })
+    .catch(function(err) {
+      npText.classList.remove('loading');
+      npText.classList.add('error');
+      npText.textContent = '>> FETCH ERR :: ' + err.message;
+    });
+
+  // ── MATRIX ──
   var canvas = document.getElementById('matrix');
   var ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth; canvas.height = window.innerHeight;
