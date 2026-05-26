@@ -491,7 +491,7 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
 
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
-  var MAX_LINES = 14;
+  var MAX_LINES = 13;
   var es;
 
   function connectLogStream() {
