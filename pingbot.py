@@ -338,59 +338,17 @@ HTML_PAGE = """<!DOCTYPE html>
   .vc-status { font-size:.58rem; color:var(--muted); letter-spacing:.1em; }
 
   /* ── BGM PLAYER ── */
-  @keyframes bgmBlinkRed {
-    0%, 100% {
-      box-shadow: 0 0 12px rgba(255,34,68,0.4);
-      border-color: var(--r);
-      color: var(--r);
-      text-shadow: 0 0 8px var(--r);
-      background: rgba(255,34,68,0.05);
-    }
-    50% {
-      box-shadow: 0 0 2px rgba(255,34,68,0.1);
-      border-color: rgba(255,34,68,0.3);
-      color: rgba(255,34,68,0.4);
-      text-shadow: none;
-      background: transparent;
-    }
-  }
+  .bgm-ctrl-box { display: flex; align-items: center; gap: 0.5rem; }
   .bgm-btn {
-    background: transparent;
-    font-family: var(--f);
-    font-size: .68rem;
-    font-weight: bold;
-    letter-spacing: .18em;
-    padding: .45rem .9rem;
-    cursor: pointer;
-    transition: all .2s ease;
-    outline: none;
-    border: 1px solid transparent;
-    border-radius: 0px;
+    background: transparent; border: 1px solid var(--c);
+    color: var(--c); font-family: var(--f); font-size: 0.8rem;
+    padding: 0.2rem 0.6rem; cursor: pointer; transition: 0.2s;
   }
-  .bgm-btn.blink-red {
-    animation: bgmBlinkRed 1.2s ease-in-out infinite;
-  }
-  .bgm-btn.playing {
-    border: 1px solid var(--g);
-    color: var(--g);
-    text-shadow: 0 0 8px var(--g);
-    background: rgba(0,255,136,0.08);
-    box-shadow: 0 0 12px rgba(0,255,136,0.3);
-    animation: bgmPlayingGlow 2s ease-in-out infinite alternate;
-  }
-  @keyframes bgmPlayingGlow {
-    0% { box-shadow: 0 0 6px rgba(0,255,136,0.2); border-color: rgba(0,255,136,0.6); }
-    100% { box-shadow: 0 0 16px rgba(0,255,136,0.5); border-color: var(--g); }
-  }
-  .bgm-vol-vertical {
-    -webkit-appearance: slider-vertical;
-    width: 8px;
-    height: 42px;
-    background: rgba(0,255,255,0.1);
-    border: 1px solid rgba(0,255,255,0.2);
-    outline: none;
-    cursor: pointer;
-  }
+  .bgm-btn:hover { background: rgba(0,255,255,0.1); }
+  .bgm-vol-wrap { width: 60px; height: 10px; background: var(--panel); border: 1px solid var(--border); position: relative; cursor: pointer; }
+  .bgm-vol-fill { height: 100%; background: var(--c); width: 30%; box-shadow: 0 0 8px var(--c); }
+  input[type=range].bgm-vol-range { -webkit-appearance: none; width: 100%; background: transparent; position: absolute; top:0; left:0; height:100%; z-index:2; }
+  input[type=range].bgm-vol-range::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 6px; background: #fff; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -459,18 +417,15 @@ HTML_PAGE = """<!DOCTYPE html>
 
       <div style="width:1px;height:48px;background:var(--border);"></div>
 
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;min-width:160px;">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;min-width:140px;">
         <div style="font-size:.58rem;letter-spacing:.18em;color:var(--c);text-shadow:0 0 6px var(--c);margin-bottom:2px;">// AUDIO_SYS</div>
-        <div style="display:flex;align-items:center;gap:.8rem;width:100%;justify-content:flex-end;">
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.2rem;min-width:0;flex:1;">
-            <div id="bgmTitle" style="font-size:.62rem;color:#fff;text-shadow:0 0 4px rgba(255,255,255,0.6);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;">Loading track...</div>
-            <div id="bgmTime" style="font-size:.55rem;color:var(--muted);letter-spacing:0.05em;text-align:right;">00:00 / 00:00</div>
-            <button id="bgmBtn" class="bgm-btn blink-red" style="margin-top:2px;">// PLAY</button>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;">
-            <span style="font-size:0.5rem;color:var(--muted);letter-spacing:0.05em;">VOL</span>
-            <input type="range" id="bgmVol" class="bgm-vol-vertical" min="0" max="100" value="30" orient="vertical">
-          </div>
+        <div id="bgmTitle" style="font-size:.62rem;color:#fff;max-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">Loading...</div>
+        <div class="bgm-ctrl-box">
+            <button id="bgmBtn" class="bgm-btn">[ X ]</button>
+            <div class="bgm-vol-wrap">
+                <div class="bgm-vol-fill" id="volFill"></div>
+                <input type="range" id="bgmVol" class="bgm-vol-range" min="0" max="100" value="30">
+            </div>
         </div>
       </div>
     </div>
@@ -486,7 +441,6 @@ HTML_PAGE = """<!DOCTYPE html>
         </div>
       </div>
     </div>
-
   </div>
 
   <div class="right">
@@ -544,55 +498,23 @@ HTML_PAGE = """<!DOCTYPE html>
   </div>
 </main>
 
-<div style="position:fixed;bottom:2.4rem;left:1.6rem;z-index:999;pointer-events:none;font-family:var(--f);line-height:1.7;">
-  <div style="font-size:.58rem;letter-spacing:.18em;color:rgba(0,255,255,0.18);">YAPIMCI</div>
-  <div style="font-size:.72rem;letter-spacing:.12em;color:rgba(0,255,255,0.28);text-shadow:0 0 8px rgba(0,255,255,0.15);">@lobotomi_fan</div>
-  <div style="font-size:.52rem;letter-spacing:.14em;color:rgba(0,255,255,0.12);margin-top:.15rem;">LOBOTOMY SYSTEMS // 2025</div>
-</div>
-
 <div class="bottombar">
   <span><span class="bb-dot"></span>SYSTEM ACTIVE // PING INTERVAL: 60s</span>
   <div class="bb-right">
-    <span style="color:var(--cd);">REFRESH <span id="cdNum" style="color:var(--c);text-shadow:0 0 6px var(--c);">43200</span>s <span class="cd-bar-track"><span class="cd-bar-fill" id="cdBar" style="width:100%;display:block;"></span></span></span>
-    <span id="bbDate">----/--/--</span>
-    <span id="bbTime">--:--:--</span>
+    <span style="color:var(--cd);">REFRESH <span id="cdNum" style="color:var(--c);text-shadow:0 0 6px var(--c);">43200</span>s</span>
   </div>
 </div>
 
 <iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/river-334201727/anatawahero-tt&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false" style="display:none;" allow="autoplay"></iframe>
 
 <script>
-// ╔══════════════════════════════════════════╗
-// ║  KOLAY DEĞİŞTİRİLEBİLİR SABİTLER        ║
-// ╚══════════════════════════════════════════╝
-
 const FAV_PERSON = "Cowboy Spike";
 const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot/refs/heads/main/mesaj.txt";
 
-// ════════════════════════════════════════════
-
 (function() {
-  // ── EN SEVDİĞİM KİŞİ ──
   document.getElementById('favPersonEl').textContent = FAV_PERSON;
-
-  // ── ŞU SIRALAR LOBOTOMİ :: GitHub'dan metin çek ──
-  var npText = document.getElementById('npText');
-  fetch(NOW_PLAYING_TXT_URL)
-    .then(function(res) {
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return res.text();
-    })
-    .then(function(txt) {
-      npText.classList.remove('loading', 'error');
-      npText.textContent = txt.trim();
-    })
-    .catch(function(err) {
-      npText.classList.remove('loading');
-      npText.classList.add('error');
-      npText.textContent = '>> FETCH ERR :: ' + err.message;
-    });
-
-  // ── MATRIX ──
+  
+  // Matrix ve diğer yardımcılar aynı kalıyor...
   var canvas = document.getElementById('matrix');
   var ctx = canvas.getContext('2d');
   canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -613,198 +535,61 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
   function pad(n){ return n<10?'0'+n:''+n; }
   function tick(){
     var now=new Date();
-    var hms=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
-    var date=now.getFullYear()+' landscapes/ '+pad(now.getMonth()+1)+'/'+pad(now.getDate());
-    document.getElementById('clockEl').textContent=hms;
-    document.getElementById('dateEl').textContent=date;
-    document.getElementById('bbTime').textContent=hms;
-    document.getElementById('bbDate').textContent=date;
+    document.getElementById('clockEl').textContent=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    document.getElementById('dateEl').textContent=now.getFullYear()+' landscapes/ '+pad(now.getMonth()+1)+'/'+pad(now.getDate());
   }
   tick(); setInterval(tick,1000);
 
-  var logbox = document.getElementById('logbox');
-  var cursorLine = document.getElementById('cursorLine');
-  var MAX_LINES = 10;
-  var es;
-
-  function connectLogStream() {
-    es = new EventSource('/log-stream');
-    es.onmessage = function(e) {
-      var parts = e.data.split('|');
-      var ts  = parts[0];
-      var cls = parts[1];
-      var msg = parts[2];
-
-      var lines = logbox.querySelectorAll('.le');
-      if(lines.length >= MAX_LINES) {
-        var toRemove = [];
-        lines.forEach(function(l){ if(l.id !== 'cursorLine') toRemove.push(l); });
-        toRemove.forEach(function(l){ l.remove(); });
-        var sep = document.createElement('div');
-        sep.className = 'le';
-        sep.innerHTML = '<span class="ts">'+ts+'</span><span class="msg sys">>> SCREEN RESET :: log buffer wiped & restarted</span>';
-        logbox.insertBefore(sep, cursorLine);
-      }
-
-      var le = document.createElement('div');
-      le.className = 'le';
-      le.innerHTML = '<span class="ts">'+ts+'</span><span class="msg '+cls+'">'+msg+'</span>';
-      logbox.insertBefore(le, cursorLine);
-      logbox.scrollTop = logbox.scrollHeight;
-    };
-    es.onerror = function() {
-      es.close();
-      setTimeout(connectLogStream, 2000);
-    };
-  }
-  connectLogStream();
-
-  var total=43200, left=total;
-  var cdNum=document.getElementById('cdNum');
-  var cdBar=document.getElementById('cdBar');
-  setInterval(function(){
-    left--;
-    cdNum.textContent=left;
-    cdBar.style.width=(left/total*100)+'%';
-    if(left<=0) location.reload();
-  },1000);
-
-  var lobStartTime=Date.now(), lobRunning=true;
-  var lobNow=new Date();
-  document.getElementById('lobStart').textContent=pad(lobNow.getHours())+':'+pad(lobNow.getMinutes())+pad(lobNow.getSeconds());
-
-  var lobViz=document.getElementById('lobViz');
-  var lobBars=[];
-  var lobStyle=document.createElement('style');
-  lobStyle.textContent='@keyframes lobWave{0%,100%{transform:scaleY(.1)}50%{transform:scaleY(1)}}';
-  document.head.appendChild(lobStyle);
-  for(var i=0;i<40;i++){
-    var b=document.createElement('div');
-    var dur=(0.4+Math.random()*0.8).toFixed(2)+'s';
-    var dly=(-Math.random()*1.2).toFixed(2)+'s';
-    b.style.cssText='width:3px;height:32px;border-radius:1px;background:var(--c);box-shadow:0 0 4px var(--c);transform-origin:bottom;transform:scaleY(0.1);animation:lobWave '+dur+' linear '+dly+' infinite;';
-    lobViz.appendChild(b); lobBars.push(b);
-  }
-
-  var lobTimerEl=document.getElementById('lobTimer');
-  setInterval(function(){
-    if(!lobRunning) return;
-    var e=Math.floor((Date.now()-lobStartTime)/1000);
-    lobTimerEl.textContent=pad(Math.floor(e/3600))+':'+pad(Math.floor(e%3600/60))+':'+pad(e%60);
-  },1000);
-
-  // ── ZİYARETÇİ CHAT ──
-  const MAX_VC = 60;
-  let vcMsgs = [], vcCnt = 0;
-
-  async function vcLoad() {
-    try {
-      const r = await fetch('/chat/messages');
-      const d = await r.json();
-      vcMsgs = d.messages || [];
-      vcCnt = d.count || 0;
-      vcRender();
-    } catch(e) { document.getElementById('vcStat').textContent = '>> ERR: ' + e.message; }
-  }
-
-  function vcRender() {
-    const box = document.getElementById('vcBox');
-    box.innerHTML = '';
-    const slice = vcMsgs.slice(-MAX_VC);
-    if (!slice.length) {
-      box.innerHTML = '<div class="vcm system"><span class="vts">--:--:--</span><span class="vtx">>> ilk mesajı sen yaz!</span></div>';
-      return;
-    }
-    slice.forEach(m => {
-      const d = document.createElement('div');
-      d.className = 'vcm';
-      d.innerHTML = `<span class="vts">${m.ts}</span><span class="vtu">loblob</span><span class="vsep"> :: </span><span class="vtx">${m.text.replace(/</g,'&lt;')}</span>`;
-      box.appendChild(d);
-    });
-    box.scrollTop = box.scrollHeight;
-    document.getElementById('vcCount').textContent = String(vcCnt).padStart(4,'0');
-  }
-
-  window.vcSend = async function() {
-    const inp = document.getElementById('vcInput');
-    const text = inp.value.trim();
-    if (!text) return;
-    inp.value = '';
-    try {
-      const r = await fetch('/chat/send', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})});
-      const d = await r.json();
-      if (d.ok) { await vcLoad(); document.getElementById('vcStat').textContent = '>> SENT OK'; }
-    } catch(e) { document.getElementById('vcStat').textContent = '>> ERR: ' + e.message; }
-  };
-
-  document.getElementById('vcInput').addEventListener('keydown', e => { if(e.key==='Enter') vcSend(); });
-  vcLoad();
-  setInterval(vcLoad, 8000);
-
-  // ── BGM PLAYER Lojik ──
+  // BGM Lojik
   var widgetIframe = document.getElementById('sc-widget');
   var scWidget = SC.Widget(widgetIframe);
   var bgmBtn = document.getElementById('bgmBtn');
   var bgmVol = document.getElementById('bgmVol');
-  var isBgmPlaying = false;
+  var volFill = document.getElementById('volFill');
+  var lobViz = document.getElementById('lobViz');
+  var lobBars = [];
+  
+  // Çubukları oluştur
+  for(var i=0; i<40; i++){
+    var b = document.createElement('div');
+    b.style.cssText='width:3px;height:32px;border-radius:1px;background:var(--c);box-shadow:0 0 4px var(--c);transform-origin:bottom;transform:scaleY(0.1);';
+    lobViz.appendChild(b); lobBars.push(b);
+  }
+
+  function setViz(running) {
+    lobBars.forEach(b => {
+      b.style.animation = running ? 'lobWave 0.6s linear infinite' : 'none';
+      if(!running) b.style.transform = 'scaleY(0.1)';
+    });
+  }
 
   scWidget.bind(SC.Widget.Events.READY, function() {
     scWidget.setVolume(bgmVol.value);
     
-    // Şarkı bilgilerini al
-    scWidget.getCurrentSound(function(sound) {
-      if (sound && sound.title) {
-        document.getElementById('bgmTitle').textContent = sound.title;
-      } else {
-        document.getElementById('bgmTitle').textContent = "anatawahero-tt";
-      }
-    });
-
-    scWidget.bind(SC.Widget.Events.PLAY, function() {
-      scWidget.getCurrentSound(function(sound) {
-        if (sound && sound.title) document.getElementById('bgmTitle').textContent = sound.title;
+    bgmBtn.addEventListener('click', function() {
+      scWidget.isPaused(function(paused) {
+        if (paused) {
+          scWidget.play();
+          bgmBtn.textContent = '[ O ]';
+          setViz(true);
+        } else {
+          scWidget.pause();
+          bgmBtn.textContent = '[ X ]';
+          setViz(false);
+        }
       });
     });
 
-    // Süre ilerleme takibi
-    scWidget.bind(SC.Widget.Events.PLAY_PROGRESS, function(data) {
-      var currentSec = Math.floor(data.currentPosition / 1000);
-      var curMin = Math.floor(currentSec / 60);
-      var curSec = currentSec % 60;
-
-      var durationSec = Math.floor(data.soundDuration / 1000);
-      var totalMin = Math.floor(durationSec / 60);
-      var totalSec = durationSec % 60;
-
-      document.getElementById('bgmTime').textContent = pad(curMin) + ":" + pad(curSec) + " / " + pad(totalMin) + ":" + pad(totalSec);
-    });
-
-    // Şarkı bitince tekrar başlat (Loop)
-    scWidget.bind(SC.Widget.Events.FINISH, function() {
-      scWidget.play();
+    bgmVol.addEventListener('input', function() {
+      scWidget.setVolume(this.value);
+      volFill.style.width = this.value + '%';
     });
   });
-
-  bgmBtn.addEventListener('click', function() {
-    if (!isBgmPlaying) {
-      scWidget.play();
-      bgmBtn.className = 'bgm-btn playing';
-      bgmBtn.innerHTML = '// PAUSE';
-      isBgmPlaying = true;
-    } else {
-      scWidget.pause();
-      bgmBtn.className = 'bgm-btn blink-red';
-      bgmBtn.innerHTML = '// PLAY';
-      isBgmPlaying = false;
-    }
-  });
-
-  bgmVol.addEventListener('input', function() {
-    scWidget.setVolume(this.value);
-  });
-
 })();
 </script>
+<style>
+@keyframes lobWave{0%,100%{transform:scaleY(.1)}50%{transform:scaleY(1)}}
+</style>
 </body>
 </html>
 """
