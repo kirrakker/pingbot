@@ -2,8 +2,9 @@ import os
 import time
 import threading
 import random
+import json
 import requests
-from flask import Flask, render_template_string, Response, stream_with_context
+from flask import Flask, render_template_string, Response, stream_with_context, request, jsonify
 
 app = Flask(__name__)
 
@@ -17,6 +18,39 @@ ping_status = {
     "success": 0,
 }
 
+# ── CHAT ──
+CHAT_FILE = "chat.json"
+MAX_MESSAGES = 200
+
+def load_chat():
+    try:
+        with open(CHAT_FILE) as f:
+            return json.load(f)
+    except:
+        return {"messages": [], "count": 0}
+
+def save_chat(data):
+    with open(CHAT_FILE, "w") as f:
+        json.dump(data, f)
+
+@app.route('/chat/messages')
+def chat_messages():
+    return jsonify(load_chat())
+
+@app.route('/chat/send', methods=['POST'])
+def chat_send():
+    data = request.get_json()
+    text = (data.get('text') or '').strip()[:140]
+    if not text:
+        return jsonify({"ok": False}), 400
+    chat = load_chat()
+    chat["messages"].append({"ts": time.strftime('%H:%M:%S'), "text": text})
+    chat["messages"] = chat["messages"][-MAX_MESSAGES:]
+    chat["count"] = chat.get("count", 0) + 1
+    save_chat(chat)
+    return jsonify({"ok": True, "count": chat["count"]})
+
+# ── FAKE LOGS ──
 FAKE_LOGS = [
     ("sys", ">> MEM CHECK :: heap 42MB / 512MB OK"),
     ("sys", ">> THREAD POOL :: workers: 4 active"),
@@ -60,7 +94,6 @@ FAKE_LOGS = [
     ("ok",  ">> LATENCY :: within threshold"),
 ]
 
-# UltraKill — 3 sade satir, sirasiya gonder
 ULTRAKILL_LINES = [
     ("err", ">> MANKIND IS DEAD."),
     ("err", ">> BLOOD IS FUEL."),
@@ -74,15 +107,11 @@ def log_stream():
         last_heartbeat = time.time()
         while True:
             now = time.time()
-
-            # Heartbeat — donmayi onler
             if now - last_heartbeat >= 15:
                 yield ": heartbeat\n\n"
                 last_heartbeat = time.time()
                 time.sleep(0.1)
                 continue
-
-            # UltraKill easter egg — %1 ihtimalle
             if random.random() < 0.01:
                 for cls, msg in ULTRAKILL_LINES:
                     ts = time.strftime('%H:%M:%S')
@@ -90,18 +119,13 @@ def log_stream():
                     time.sleep(0.6)
                 last_heartbeat = time.time()
                 continue
-
-            # Normal log
             delay = random.uniform(1.8, 4.5)
             time.sleep(delay)
-
             num_logs = 1 if random.random() < 0.75 else 2
             chosen_logs = random.choices(FAKE_LOGS, k=num_logs)
-
             for cls, msg in chosen_logs:
                 ts = time.strftime('%H:%M:%S')
                 yield f"data: {ts}|{cls}|{msg}\n\n"
-
             last_heartbeat = time.time()
 
     return Response(
@@ -129,6 +153,7 @@ HTML_PAGE = """<!DOCTYPE html>
     --g: #00ff88; --r: #ff2244; --bg: #000; --panel: #030f0f;
     --border: rgba(0,255,255,0.2); --muted: #006666;
     --f: 'Share Tech Mono', monospace;
+    --pink: #ff69b4;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -288,6 +313,32 @@ HTML_PAGE = """<!DOCTYPE html>
     0%,100% { text-shadow: 0 0 8px #ff69b4, 0 0 18px rgba(255,105,180,0.35); opacity:1; }
     50%      { text-shadow: 0 0 16px #ff69b4, 0 0 34px rgba(255,105,180,0.65); opacity:.8; }
   }
+
+  /* ── ZİYARETÇİ CHAT ── */
+  .visitor-chat-sec { border-bottom: 1px solid var(--border); padding: .6rem 1rem .8rem; }
+  .vc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+  .vc-title { font-size:.62rem; letter-spacing:.2em; color:var(--c); text-shadow:0 0 6px var(--c); }
+  .vc-live { display:flex; align-items:center; gap:.35rem; font-size:.58rem; color:var(--g); letter-spacing:.12em; }
+  .vc-dot { width:6px; height:6px; border-radius:50%; background:var(--g); animation:glow-g 1.4s ease-in-out infinite; }
+  .vc-messages { height:180px; overflow-y:auto; padding:.4rem 0; display:flex; flex-direction:column; gap:.3rem; }
+  .vc-messages::-webkit-scrollbar { width:2px; }
+  .vc-messages::-webkit-scrollbar-thumb { background:var(--muted); }
+  .vcm { display:flex; gap:.6rem; font-size:.7rem; line-height:1.6; }
+  .vts { color:var(--muted); flex-shrink:0; font-size:.6rem; }
+  .vtu { color:var(--pink); flex-shrink:0; text-shadow:0 0 5px rgba(255,105,180,0.4); }
+  .vsep { color:var(--muted); flex-shrink:0; }
+  .vtx { color:#cceeee; flex:1; word-break:break-word; }
+  .vcm.system .vtx { color:var(--muted); }
+  .vc-counter { display:flex; align-items:center; gap:.6rem; padding:.35rem 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin:.4rem 0; }
+  .vck-lbl { font-size:.55rem; letter-spacing:.16em; color:var(--muted); }
+  .vck-val { font-size:1rem; color:var(--c); text-shadow:0 0 8px var(--c); }
+  .vc-input-row { display:flex; gap:.5rem; margin-bottom:.4rem; }
+  .vc-input { flex:1; background:rgba(0,255,255,0.04); border:1px solid var(--border); color:var(--c); font-family:var(--f); font-size:.7rem; padding:.4rem .65rem; outline:none; }
+  .vc-input:focus { border-color:var(--c); box-shadow:0 0 8px rgba(0,255,255,0.12); }
+  .vc-input::placeholder { color:var(--muted); }
+  .vc-send { background:transparent; border:1px solid var(--c); color:var(--c); font-family:var(--f); font-size:.6rem; letter-spacing:.14em; padding:.4rem .8rem; cursor:pointer; }
+  .vc-send:hover { background:rgba(0,255,255,0.1); }
+  .vc-status { font-size:.58rem; color:var(--muted); letter-spacing:.1em; }
 </style>
 </head>
 <body>
@@ -337,7 +388,6 @@ HTML_PAGE = """<!DOCTYPE html>
     <div class="now-playing-sec">
       <div class="np-sec-lbl">SU SIRALAR <span style="color:var(--c);text-shadow:0 0 12px var(--c),0 0 28px rgba(0,255,255,0.6);">LOBOTOMİ</span></div>
       <div class="np-inner">
-        <!-- Resim: src'yi istediğin imgur linki ile değiştir -->
         <div class="np-img-wrap">
           <img id="npImg" src="https://i.imgur.com/DYSEMfC.png" alt="şu sıralar" />
         </div>
@@ -383,6 +433,26 @@ HTML_PAGE = """<!DOCTYPE html>
       </div>
     </div>
 
+    <!-- ── ZİYARETÇİ CHAT ── -->
+    <div class="visitor-chat-sec">
+      <div class="vc-header">
+        <span class="vc-title">// VISITOR CHAT</span>
+        <span class="vc-live"><span class="vc-dot"></span>LIVE</span>
+      </div>
+      <div class="vc-messages" id="vcBox">
+        <div class="vcm system"><span class="vts">--:--:--</span><span class="vtx">>> SYSTEM :: yükleniyor...</span></div>
+      </div>
+      <div class="vc-counter">
+        <span class="vck-lbl">TOPLAM MESAJ</span>
+        <span class="vck-val" id="vcCount">0000</span>
+      </div>
+      <div class="vc-input-row">
+        <input id="vcInput" class="vc-input" maxlength="140" placeholder=">> mesajını yaz..." autocomplete="off"/>
+        <button class="vc-send" onclick="vcSend()">SEND &#9658;</button>
+      </div>
+      <div class="vc-status"><span style="color:var(--pink)">loblob</span> <span id="vcStat">>> READY</span></div>
+    </div>
+
     <div class="sec">
       <div class="sec-lbl">LOBOTOMY // REC</div>
       <div class="lob-header-row">
@@ -426,15 +496,8 @@ HTML_PAGE = """<!DOCTYPE html>
 // ║  KOLAY DEĞİŞTİRİLEBİLİR SABİTLER        ║
 // ╚══════════════════════════════════════════╝
 
-// En sevdiğin kişi — buradan değiştir:
 const FAV_PERSON = "Cowboy Spike";
-
-// "Şu Sıralar" metninin çekileceği GitHub raw .txt URL'si:
 const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot/refs/heads/main/mesaj.txt";
-
-// "Şu Sıralar" görseli için imgur linki — npImg src'sini de değiştirebilirsin,
-// ya da bu sabiti JS tarafından atamak istersen aşağıdaki satırı aç:
-// document.getElementById('npImg').src = "https://i.imgur.com/XXXXX.png";
 
 // ════════════════════════════════════════════
 
@@ -584,6 +647,55 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
       });
     }
   };
+
+  // ── ZİYARETÇİ CHAT ──
+  const MAX_VC = 60;
+  let vcMsgs = [], vcCnt = 0;
+
+  async function vcLoad() {
+    try {
+      const r = await fetch('/chat/messages');
+      const d = await r.json();
+      vcMsgs = d.messages || [];
+      vcCnt = d.count || 0;
+      vcRender();
+    } catch(e) { document.getElementById('vcStat').textContent = '>> ERR: ' + e.message; }
+  }
+
+  function vcRender() {
+    const box = document.getElementById('vcBox');
+    box.innerHTML = '';
+    const slice = vcMsgs.slice(-MAX_VC);
+    if (!slice.length) {
+      box.innerHTML = '<div class="vcm system"><span class="vts">--:--:--</span><span class="vtx">>> ilk mesajı sen yaz!</span></div>';
+      return;
+    }
+    slice.forEach(m => {
+      const d = document.createElement('div');
+      d.className = 'vcm';
+      d.innerHTML = `<span class="vts">${m.ts}</span><span class="vtu">loblob</span><span class="vsep"> :: </span><span class="vtx">${m.text.replace(/</g,'&lt;')}</span>`;
+      box.appendChild(d);
+    });
+    box.scrollTop = box.scrollHeight;
+    document.getElementById('vcCount').textContent = String(vcCnt).padStart(4,'0');
+  }
+
+  window.vcSend = async function() {
+    const inp = document.getElementById('vcInput');
+    const text = inp.value.trim();
+    if (!text) return;
+    inp.value = '';
+    try {
+      const r = await fetch('/chat/send', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})});
+      const d = await r.json();
+      if (d.ok) { await vcLoad(); document.getElementById('vcStat').textContent = '>> SENT OK'; }
+    } catch(e) { document.getElementById('vcStat').textContent = '>> ERR: ' + e.message; }
+  };
+
+  document.getElementById('vcInput').addEventListener('keydown', e => { if(e.key==='Enter') vcSend(); });
+  vcLoad();
+  setInterval(vcLoad, 8000);
+
 })();
 </script>
 </body>
