@@ -153,15 +153,16 @@ HTML_PAGE = """<!DOCTYPE html>
   .topbar-right { display: flex; align-items: center; gap: 1.5rem; }
   .tb-clock { font-size: .9rem; text-shadow: 0 0 10px var(--c); letter-spacing: .1em; }
   .tb-date  { font-size: .65rem; color: var(--cd); letter-spacing: .1em; }
-  main { flex: 1; display: grid; grid-template-columns: 1fr 360px; overflow: hidden; }
-  .log-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  main { flex: 1; display: grid; grid-template-columns: 1fr 360px; overflow: hidden; min-height: 0; }
+  .log-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
   .ph {
     font-size: .7rem; letter-spacing: .18em; padding: .55rem 1.4rem;
     border-bottom: 1px solid var(--border); background: var(--panel);
     text-shadow: 0 0 6px var(--c); display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
   }
   .ph-right { font-size: .62rem; color: var(--muted); }
-  .log-body { flex: 1; overflow-y: auto; padding: 1.2rem 1.4rem; font-size: .78rem; line-height: 2; }
+  .log-body { flex: 0 0 auto; max-height: 160px; overflow-y: auto; padding: .8rem 1.4rem; font-size: .78rem; line-height: 2; }
   .log-body::-webkit-scrollbar { width: 3px; }
   .log-body::-webkit-scrollbar-thumb { background: var(--muted); }
   .le { display: flex; gap: .8rem; }
@@ -227,7 +228,9 @@ HTML_PAGE = """<!DOCTYPE html>
   .now-playing-sec {
     border-bottom: 1px solid var(--border);
     padding: 1.2rem 1.4rem 1.4rem;
-    flex-shrink: 0;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
   }
   .np-sec-lbl {
     font-size: .78rem; letter-spacing: .22em;
@@ -381,7 +384,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <!-- ── EN SEVDİĞİM KİŞİ ── -->
     <div class="fav-person-sec sec">
-      <div class="sec-lbl">EN SEVDİĞİM KİŞİ</div>
+      <div class="sec-lbl">ŞU SIRALAR EN SEVDİĞİM KİŞİ</div>
       <div class="fav-person-row">
         <span class="fav-person-label">ŞU AN ::</span>
         <span class="fav-person-name" id="favPersonEl"></span>
