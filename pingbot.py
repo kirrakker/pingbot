@@ -1,4 +1,50 @@
-import os
+# --- LOGLARI DOSYADAN OKUYAN FONKSİYON ---
+def get_logs_from_file():
+    logs = []
+    try:
+        if os.path.exists("fakelog.txt"):
+            with open("fakelog.txt", "r", encoding="utf-8") as f:
+                for line in f:
+                    if "|" in line:
+                        cls, msg = line.strip().split("|", 1)
+                        logs.append((cls, msg))
+        return logs if logs else [("sys", ">> LOG FILE EMPTY")]
+    except Exception:
+        return [("sys", ">> LOG FILE READ ERROR")]
+
+# --- log_stream FONKSİYONUNU GÜNCELLEYİN ---
+@app.route('/log-stream')
+def log_stream():
+    def generate():
+        last_heartbeat = time.time()
+        while True:
+            # Her döngüde güncel logları çek
+            current_logs = get_logs_from_file()
+            
+            now = time.time()
+            if now - last_heartbeat >= 15:
+                yield ": heartbeat\n\n"
+                last_heartbeat = time.time()
+                time.sleep(0.1)
+                continue
+            
+            # Rastgele log seçimi
+            delay = random.uniform(1.8, 4.5)
+            time.sleep(delay)
+            
+            num_logs = 1 if random.random() < 0.75 else 2
+            chosen_logs = random.choices(current_logs, k=num_logs)
+            
+            for cls, msg in chosen_logs:
+                ts = time.strftime('%H:%M:%S')
+                yield f"data: {ts}|{cls}|{msg}\n\n"
+            last_heartbeat = time.time()
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no', 'Connection': 'keep-alive'}
+    )import os
 import time
 import threading
 import random
