@@ -133,7 +133,7 @@ HTML_PAGE = """<!DOCTYPE html>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg); color: var(--c); font-family: var(--f);
-    min-height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
   }
   body::after {
     content: ''; position: fixed; inset: 0;
@@ -146,6 +146,7 @@ HTML_PAGE = """<!DOCTYPE html>
     display: flex; align-items: center; justify-content: space-between;
     padding: .55rem 1.6rem; border-bottom: 1px solid var(--c);
     background: var(--panel); box-shadow: 0 0 24px var(--cg);
+    flex-shrink: 0;
   }
   .topbar-left { display: flex; align-items: center; gap: 1rem; }
   .tb-title { font-size: .8rem; letter-spacing: .22em; text-shadow: 0 0 8px var(--c); }
@@ -162,7 +163,7 @@ HTML_PAGE = """<!DOCTYPE html>
     flex-shrink: 0;
   }
   .ph-right { font-size: .62rem; color: var(--muted); }
-  .log-body { flex: 0 0 auto; max-height: 160px; overflow-y: auto; padding: .8rem 1.4rem; font-size: .78rem; line-height: 2; }
+  .log-body { flex: 0 0 120px; overflow-y: auto; padding: .6rem 1.4rem; font-size: .78rem; line-height: 2; }
   .log-body::-webkit-scrollbar { width: 3px; }
   .log-body::-webkit-scrollbar-thumb { background: var(--muted); }
   .le { display: flex; gap: .8rem; }
@@ -220,6 +221,7 @@ HTML_PAGE = """<!DOCTYPE html>
     display: flex; justify-content: space-between; align-items: center;
     font-size: .62rem; color: var(--muted); letter-spacing: .1em;
     box-shadow: 0 0 20px var(--cg); position: relative; z-index: 2;
+    flex-shrink: 0;
   }
   .bb-right { display: flex; gap: 1.5rem; align-items: center; }
   .bb-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--g); box-shadow: 0 0 6px var(--g); margin-right: .4rem; animation: glow-g 1.4s ease-in-out infinite; }
@@ -334,7 +336,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <!-- ── ŞU SIRALAR LOBOTOMİ ── -->
     <div class="now-playing-sec">
-      <div class="np-sec-lbl">ŞU SIRALAR <span style="color:var(--c);text-shadow:0 0 12px var(--c),0 0 28px rgba(0,255,255,0.6);">LOBOTOMİ</span></div>
+      <div class="np-sec-lbl">SU SIRALAR <span style="color:var(--c);text-shadow:0 0 12px var(--c),0 0 28px rgba(0,255,255,0.6);">LOBOTOMİ</span></div>
       <div class="np-inner">
         <!-- Resim: src'yi istediğin imgur linki ile değiştir -->
         <div class="np-img-wrap">
@@ -384,7 +386,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <!-- ── EN SEVDİĞİM KİŞİ ── -->
     <div class="fav-person-sec sec">
-      <div class="sec-lbl">ŞU SIRALAR EN SEVDİĞİM KİŞİ</div>
+      <div class="sec-lbl">SU SIRALAR EN SEVDİĞİM KİŞİ</div>
       <div class="fav-person-row">
         <span class="fav-person-label">ŞU AN ::</span>
         <span class="fav-person-name" id="favPersonEl"></span>
