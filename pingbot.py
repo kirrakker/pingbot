@@ -60,10 +60,11 @@ FAKE_LOGS = [
     ("ok",  ">> LATENCY :: within threshold"),
 ]
 
-ULTRAKILL_LOGS = [
-    ("err", ">> MANKIND IS DEAD :: BLOOD IS FUEL :: HELL IS FULL"),
-    ("err", ">> SYSTEM ALERT :: FLESH IS POWER :: CORE OVERLOADED"),
-    ("err", ">> WARNING :: MACHINE ASCENSION DETECTED :: MANKIND OBSOLETE"),
+# UltraKill — 3 sade satir, sirasiya gonder
+ULTRAKILL_LINES = [
+    ("err", ">> MANKIND IS DEAD."),
+    ("err", ">> BLOOD IS FUEL."),
+    ("err", ">> HELL IS FULL."),
 ]
 
 
@@ -74,19 +75,19 @@ def log_stream():
         while True:
             now = time.time()
 
-            # Heartbeat — 15 saniyede bir (donmayı önler)
+            # Heartbeat — donmayi onler
             if now - last_heartbeat >= 15:
                 yield ": heartbeat\n\n"
                 last_heartbeat = time.time()
                 time.sleep(0.1)
                 continue
 
-            # UltraKill easter egg — %3 ihtimalle
-            if random.random() < 0.03:
-                ts = time.strftime('%H:%M:%S')
-                cls, msg = random.choice(ULTRAKILL_LOGS)
-                yield f"data: {ts}|{cls}|{msg}\n\n"
-                time.sleep(random.uniform(4.0, 7.0))
+            # UltraKill easter egg — %1 ihtimalle
+            if random.random() < 0.01:
+                for cls, msg in ULTRAKILL_LINES:
+                    ts = time.strftime('%H:%M:%S')
+                    yield f"data: {ts}|{cls}|{msg}\n\n"
+                    time.sleep(0.6)
                 last_heartbeat = time.time()
                 continue
 
@@ -221,47 +222,10 @@ HTML_PAGE = """<!DOCTYPE html>
   }
   .bb-right { display: flex; gap: 1.5rem; align-items: center; }
   .bb-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--g); box-shadow: 0 0 6px var(--g); margin-right: .4rem; animation: glow-g 1.4s ease-in-out infinite; }
-  @keyframes ukFlash { 0%{opacity:0;transform:scale(1.08)} 10%{opacity:1;transform:scale(1)} 80%{opacity:1} 100%{opacity:0;transform:scale(.97)} }
-  @keyframes ukGlitch {
-    0%,100%{clip-path:inset(0 0 100% 0)}
-    10%{clip-path:inset(30% 0 50% 0);transform:translate(-3px,0)}
-    20%{clip-path:inset(60% 0 20% 0);transform:translate(3px,0)}
-    30%{clip-path:inset(10% 0 70% 0);transform:translate(-2px,0)}
-    40%,90%{clip-path:inset(0 0 0 0);transform:translate(0,0)}
-  }
-  #uk-overlay {
-    display: none; position: fixed; inset: 0; z-index: 9999;
-    background: rgba(0,0,0,0.92);
-    align-items: center; justify-content: center; flex-direction: column;
-    gap: .6rem;
-  }
-  #uk-overlay.active { display: flex; animation: ukFlash 3.5s ease-out forwards; }
-  .uk-line {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(1.2rem, 4vw, 2.4rem);
-    letter-spacing: .18em;
-    color: var(--r);
-    text-shadow: 0 0 30px var(--r), 0 0 60px rgba(255,34,68,0.4);
-    animation: ukGlitch 0.4s steps(1) 0.2s 1;
-  }
-  .uk-line:nth-child(2) { animation-delay: 0.5s; }
-  .uk-line:nth-child(3) { animation-delay: 0.8s; }
-  .uk-sub {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: .65rem; letter-spacing: .3em;
-    color: rgba(255,34,68,0.5); margin-top: 1rem;
-  }
 </style>
 </head>
 <body>
 <canvas id="matrix"></canvas>
-
-<div id="uk-overlay">
-  <div class="uk-line">MANKIND IS DEAD.</div>
-  <div class="uk-line">BLOOD IS FUEL.</div>
-  <div class="uk-line">HELL IS FULL.</div>
-  <div class="uk-sub">// LOBOTOMY SYSTEMS // ULTRAKILL PROTOCOL TRIGGERED //</div>
-</div>
 
 <div class="topbar">
   <div class="topbar-left">
@@ -408,14 +372,6 @@ HTML_PAGE = """<!DOCTYPE html>
   }
   tick(); setInterval(tick,1000);
 
-  function triggerUltraKill() {
-    var overlay = document.getElementById('uk-overlay');
-    overlay.classList.remove('active');
-    void overlay.offsetWidth;
-    overlay.classList.add('active');
-    setTimeout(function(){ overlay.classList.remove('active'); }, 3500);
-  }
-
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
   var MAX_LINES = 15;
@@ -428,10 +384,6 @@ HTML_PAGE = """<!DOCTYPE html>
       var ts  = parts[0];
       var cls = parts[1];
       var msg = parts[2];
-
-      if (cls === 'err' && msg && msg.indexOf('MANKIND IS DEAD') !== -1) {
-        triggerUltraKill();
-      }
 
       var lines = logbox.querySelectorAll('.le');
       if(lines.length >= MAX_LINES) {
