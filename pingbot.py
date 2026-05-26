@@ -154,8 +154,8 @@ HTML_PAGE = """<!DOCTYPE html>
   .topbar-right { display: flex; align-items: center; gap: 1.5rem; }
   .tb-clock { font-size: .9rem; text-shadow: 0 0 10px var(--c); letter-spacing: .1em; }
   .tb-date  { font-size: .65rem; color: var(--cd); letter-spacing: .1em; }
-  main { flex: 1; display: grid; grid-template-columns: 1fr 360px; overflow: hidden; min-height: 0; }
-  .log-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+  main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+  .log-panel { flex: 1; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
   .ph {
     font-size: .7rem; letter-spacing: .18em; padding: .55rem 1.4rem;
     border-bottom: 1px solid var(--border); background: var(--panel);
@@ -174,7 +174,7 @@ HTML_PAGE = """<!DOCTYPE html>
   .le .msg.sys { color: var(--muted); }
   @keyframes blink { 50% { opacity:0 } }
   .cursor::after { content:'█'; animation: blink .9s step-end infinite; font-size:.6rem; }
-  .right { display: flex; flex-direction: column; overflow-y: auto; }
+  .right { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; flex-shrink: 0; width: 360px; border-left: 1px solid var(--border); }
   .sec { border-bottom: 1px solid var(--border); padding: 1rem 1.2rem; }
   .sec-lbl { font-size: .62rem; letter-spacing: .2em; color: var(--c); text-shadow: 0 0 6px var(--c); margin-bottom: .8rem; }
   .badge { display: flex; align-items: center; gap: .7rem; font-size: .95rem; letter-spacing: .1em; }
@@ -288,6 +288,38 @@ HTML_PAGE = """<!DOCTYPE html>
     0%,100% { text-shadow: 0 0 8px #ff69b4, 0 0 18px rgba(255,105,180,0.35); opacity:1; }
     50%      { text-shadow: 0 0 16px #ff69b4, 0 0 34px rgba(255,105,180,0.65); opacity:.8; }
   }
+
+  /* ── REKLAMLAR ── */
+  .ads-panel {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column;
+    border-left: 1px solid var(--border);
+    padding-left: .85rem;
+    overflow: hidden;
+  }
+  .ads-lbl {
+    font-size: .58rem; letter-spacing: .2em; color: var(--c);
+    text-shadow: 0 0 6px var(--c); margin-bottom: .4rem; flex-shrink: 0;
+  }
+  .ads-list {
+    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: .25rem;
+    min-height: 0;
+  }
+  .ads-list::-webkit-scrollbar { width: 2px; }
+  .ads-list::-webkit-scrollbar-thumb { background: var(--muted); }
+  .ad-item {
+    font-size: .62rem; color: var(--cd); letter-spacing: .04em;
+    line-height: 1.4; text-decoration: none; display: block;
+    border-left: 2px solid var(--border); padding-left: .4rem;
+    transition: color .15s, border-color .15s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ad-item:hover {
+    color: var(--c); border-color: var(--c);
+    text-shadow: 0 0 6px var(--c);
+  }
+  .ad-item.loading { color: var(--muted); font-style: italic; border-left-color: transparent; }
+  .ad-item.error   { color: var(--r); border-left-color: var(--r); }
 </style>
 </head>
 <body>
@@ -310,13 +342,19 @@ HTML_PAGE = """<!DOCTYPE html>
       <span>SYSTEM BROADCAST LOGS | PING.LOG</span>
       <span class="ph-right">INTERVAL: 60s</span>
     </div>
-    <div style="padding:.6rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem;background:rgba(0,255,255,0.02);">
+    <div style="padding:.6rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:stretch;gap:.8rem;background:rgba(0,255,255,0.02);flex-shrink:0;min-height:74px;max-height:74px;">
       <img src="https://i.imgur.com/4VfmCSF.png" alt="lobotomi"
-        style="height:54px;width:auto;opacity:.85;border:1px solid var(--border);" />
-      <div style="font-size:.6rem;letter-spacing:.12em;color:var(--muted);line-height:1.8;">
+        style="height:54px;width:auto;opacity:.85;border:1px solid var(--border);flex-shrink:0;align-self:center;" />
+      <div style="font-size:.6rem;letter-spacing:.12em;color:var(--muted);line-height:1.8;flex-shrink:0;align-self:center;white-space:nowrap;">
         <div style="color:var(--cd);">LOBOTOMY SYSTEMS</div>
         <div>UPTIME MONITOR ACTIVE</div>
         <div>NODE :: render-prod-01</div>
+      </div>
+      <div class="ads-panel">
+        <div class="ads-lbl">SU SIRALAR REKLAMLAR</div>
+        <div class="ads-list" id="adsList">
+          <span class="ad-item loading">// FETCHING ADS...</span>
+        </div>
       </div>
     </div>
     <div class="log-body" id="logbox">
@@ -445,6 +483,10 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
 // ya da bu sabiti JS tarafından atamak istersen aşağıdaki satırı aç:
 // document.getElementById('npImg').src = "https://i.imgur.com/XXXXX.png";
 
+// Reklam linklerinin çekileceği GitHub raw .txt URL'si:
+// Her satır ayrı bir giriş. Format: "Başlık|https://link" veya sadece "https://link"
+const ADS_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot/refs/heads/main/add.txt";
+
 // ════════════════════════════════════════════
 
 (function() {
@@ -466,6 +508,52 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
       npText.classList.remove('loading');
       npText.classList.add('error');
       npText.textContent = '>> FETCH ERR :: ' + err.message;
+    });
+
+  // ── REKLAMLAR :: GitHub'dan link listesi çek ──
+  // add.txt formatı: her satır "Başlık|https://url" veya sadece "https://url"
+  var adsList = document.getElementById('adsList');
+  fetch(ADS_TXT_URL)
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.text();
+    })
+    .then(function(txt) {
+      adsList.innerHTML = '';
+      var lines = txt.trim().split('\n').filter(function(l){ return l.trim(); });
+      lines.forEach(function(line) {
+        line = line.trim();
+        var parts = line.split('|');
+        var label, url;
+        if (parts.length >= 2) {
+          label = parts[0].trim();
+          url   = parts[1].trim();
+        } else {
+          label = line;
+          url   = /^https?:\/\//.test(line) ? line : null;
+        }
+        var el;
+        if (url) {
+          el = document.createElement('a');
+          el.href = url;
+          el.target = '_blank';
+          el.rel = 'noopener noreferrer';
+          el.className = 'ad-item';
+          el.textContent = '>> ' + label;
+        } else {
+          el = document.createElement('span');
+          el.className = 'ad-item';
+          el.style.color = 'var(--muted)';
+          el.textContent = '// ' + label;
+        }
+        adsList.appendChild(el);
+      });
+      if (!lines.length) {
+        adsList.innerHTML = '<span class="ad-item loading">// EMPTY</span>';
+      }
+    })
+    .catch(function(err) {
+      adsList.innerHTML = '<span class="ad-item error">>> FETCH ERR :: ' + err.message + '</span>';
     });
 
   // ── MATRIX ──
