@@ -427,7 +427,7 @@ HTML_PAGE = """<!DOCTYPE html>
 // ╚══════════════════════════════════════════╝
 
 // En sevdiğin kişi — buradan değiştir:
-const FAV_PERSON = "XXXXXXX";
+const FAV_PERSON = "Cowboy Spike";
 
 // "Şu Sıralar" metninin çekileceği GitHub raw .txt URL'si:
 const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot/refs/heads/main/mesaj.txt";
