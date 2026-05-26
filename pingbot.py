@@ -145,7 +145,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="refresh" content="43200">
-<title>PINGBOT // SYSTEM STATUS</title>
+<title>CURRENTLY LOBOTOMI // SYSTEM STATUS</title>
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
@@ -434,14 +434,14 @@ HTML_PAGE = """<!DOCTYPE html>
 <main>
   <div class="log-panel">
     <div class="ph">
-      <span>SYSTEM BROADCAST LOGS | PING.LOG</span>
+      <span>lobotomyOS BROADCAST LOGS | PING.LOG</span>
       <span class="ph-right">INTERVAL: 60s</span>
     </div>
     <div style="padding:.6rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.8rem;background:rgba(0,255,255,0.02);">
       <img src="https://i.imgur.com/4VfmCSF.png" alt="lobotomi"
         style="height:54px;width:auto;opacity:.85;border:1px solid var(--border);" />
       <div style="font-size:.6rem;letter-spacing:.12em;color:var(--muted);line-height:1.8;">
-        <div style="color:var(--cd);">LOBOTOMY SYSTEMS</div>
+        <div style="color:var(--cd);">LOBOTOMY SYSTEM os</div>
         <div>UPTIME MONITOR ACTIVE</div>
         <div>NODE :: render-prod-01</div>
       </div>
@@ -485,7 +485,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
       <!-- AUDIO SECTION -->
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;min-width:160px;">
-        <div style="font-size:.58rem;letter-spacing:.18em;color:var(--c);text-shadow:0 0 6px var(--c);margin-bottom:2px;">// AUDIO_SYS</div>
+        <div style="font-size:.58rem;letter-spacing:.18em;color:var(--c);text-shadow:0 0 6px var(--c);margin-bottom:2px;">// LOBOTOMININ SU SIRALAR DINLEDIGI SEYLER</div>
         <div style="display:flex;align-items:center;gap:.8rem;width:100%;justify-content:flex-end;">
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.2rem;min-width:0;flex:1;">
             <div id="bgmTitle" style="font-size:.62rem;color:#fff;text-shadow:0 0 4px rgba(255,255,255,0.6);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;">Loading track...</div>
@@ -546,7 +546,7 @@ HTML_PAGE = """<!DOCTYPE html>
     </div>
 
     <div class="fav-person-sec sec">
-      <div class="sec-lbl">SU SIRALAR EN SEVDİĞİM KİŞİ</div>
+      <div class="sec-lbl">LOBOTOMININ SU SIRALAR EN SEVDİĞİ KİŞİ</div>
       <div class="fav-person-row">
         <span class="fav-person-label">ŞU AN ::</span>
         <span class="fav-person-name" id="favPersonEl"></span>
@@ -654,7 +654,7 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
 
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
-  var MAX_LINES = 10;
+  var MAX_LINES = 9;
   var es;
 
   function connectLogStream() {
