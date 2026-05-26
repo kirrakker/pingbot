@@ -422,7 +422,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
 <div class="topbar">
   <div class="topbar-left">
-    <span class="tb-title">PINGBOT</span>
+    <span class="tb-title">CURRENTLY LOBOTOMI</span>
     <span class="tb-ver">// RENDER UPTIME SYSTEM v2.0</span>
   </div>
   <div class="topbar-right">
@@ -847,13 +847,13 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
     if (!isBgmPlaying) {
       scWidget.play();
       bgmBtn.className = 'bgm-btn playing';
-      bgmBtn.innerHTML = '// PAUSE';
+      bgmBtn.innerHTML = 'X PAUSE';
       isBgmPlaying = true;
       setBarsState(true);   // ← barları aktif et
     } else {
       scWidget.pause();
       bgmBtn.className = 'bgm-btn blink-red';
-      bgmBtn.innerHTML = '// PLAY';
+      bgmBtn.innerHTML = 'O PLAY';
       isBgmPlaying = false;
       setBarsState(false);  // ← barları pasif et
     }
