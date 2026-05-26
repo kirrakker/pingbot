@@ -847,13 +847,13 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
     if (!isBgmPlaying) {
       scWidget.play();
       bgmBtn.className = 'bgm-btn playing';
-      bgmBtn.innerHTML = 'X PAUSE';
+      bgmBtn.innerHTML = 'PAUSE';
       isBgmPlaying = true;
       setBarsState(true);   // ← barları aktif et
     } else {
       scWidget.pause();
       bgmBtn.className = 'bgm-btn blink-red';
-      bgmBtn.innerHTML = 'O PLAY';
+      bgmBtn.innerHTML = 'PLAY';
       isBgmPlaying = false;
       setBarsState(false);  // ← barları pasif et
     }
