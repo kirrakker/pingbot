@@ -381,7 +381,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <!-- ── Şu Sıralar En Sevdiğim Kişi ── -->
     <div class="fav-person-sec sec">
-      <div class="sec-lbl">EN SEVDİĞİM KİŞİ</div>
+      <div class="sec-lbl">ŞU SIRALAR EN SEVDİĞİM KİŞİ</div>
       <div class="fav-person-row">
         <span class="fav-person-label">ŞU AN ::</span>
         <span class="fav-person-name" id="favPersonEl"></span>
@@ -444,7 +444,7 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
 // ════════════════════════════════════════════
 
 (function() {
-  // ── EN SEVDİĞİM KİŞİ ──
+  // ── ŞU SIRALAR EN SEVDİĞİM KİŞİ ──
   document.getElementById('favPersonEl').textContent = FAV_PERSON;
 
   // ── ŞU SIRALAR LOBOTOMİ :: GitHub'dan metin çek ──
