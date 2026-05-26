@@ -256,7 +256,7 @@ HTML_PAGE = """<!DOCTYPE html>
     flex: 1; min-width: 0;
   }
   .np-content-text {
-    font-size: .72rem; color: var(--g); line-height: 1.75;
+    font-size: .72rem; color: #ffffff; line-height: 1.75;
     letter-spacing: .04em; white-space: pre-wrap; word-break: break-word;
     text-shadow: 0 0 6px rgba(0,255,136,0.4);
   }
