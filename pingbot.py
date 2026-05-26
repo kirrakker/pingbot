@@ -163,7 +163,7 @@ HTML_PAGE = """<!DOCTYPE html>
     flex-shrink: 0;
   }
   .ph-right { font-size: .62rem; color: var(--muted); }
-  .log-body { flex: 0 0 120px; overflow-y: auto; padding: .6rem 1.4rem; font-size: .78rem; line-height: 2; }
+  .log-body { flex: 1; overflow-y: auto; padding: .6rem 1.4rem; font-size: .78rem; line-height: 2; }
   .log-body::-webkit-scrollbar { width: 3px; }
   .log-body::-webkit-scrollbar-thumb { background: var(--muted); }
   .le { display: flex; gap: .8rem; }
@@ -228,11 +228,10 @@ HTML_PAGE = """<!DOCTYPE html>
 
   /* ── YENİ BÖLÜMLER ── */
   .now-playing-sec {
-    border-bottom: 1px solid var(--border);
-    padding: 1.2rem 1.4rem 1.4rem;
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
+    border: 1px solid var(--border);
+    margin: auto 1rem 0.9rem 1rem;
+    padding: 1rem 1.1rem 1.1rem;
+    background: rgba(0,255,255,0.02);
   }
   .np-sec-lbl {
     font-size: .78rem; letter-spacing: .22em;
@@ -440,7 +439,7 @@ HTML_PAGE = """<!DOCTYPE html>
 const FAV_PERSON = "XXXXXXX";
 
 // "Şu Sıralar" metninin çekileceği GitHub raw .txt URL'si:
-const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/KULLANICI/REPO/main/su_siralar.txt";
+const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot/refs/heads/main/mesaj.txt";
 
 // "Şu Sıralar" görseli için imgur linki — npImg src'sini de değiştirebilirsin,
 // ya da bu sabiti JS tarafından atamak istersen aşağıdaki satırı aç:
