@@ -26,6 +26,165 @@ FAKE_LOGS = [
     ("sys", ">> SSL HANDSHAKE :: TLS 1.3 OK"),
     ("sys", ">> SCHEDULER :: next ping queued"),
     ("sys", ">> GC CYCLE :: freed 1.2MB"),
+    ("sys", ">> WATCHDOG :: process healthy"),
+    ("ok",  ">> PING OK :: [TARGET CLASSIFIED] [HTTP 200]"),
+    ("ok",  ">> RESPONSE TIME :: 312ms"),
+    ("ok",  ">> CONN REUSE :: keep-alive hit"),
+]
+
+@app.route('/log-stream')
+def log_stream():
+    def generate():
+        while True:
+            # Akış hızını yavaşlattık (2 ile 5 saniye arası)
+            time.sleep(random.uniform(2.0, 5.0))
+            ts = time.strftime('%H:%M:%S')
+            
+            # %8 ihtimalle özel ULTRAKILL mesajı (alt alta)
+            if random.random() < 0.08:
+                ultrakill_lines = [
+                    ">> ALERT :: MANKIND IS DEAD.",
+                    ">> ALERT :: BLOOD IS FUEL.",
+                    ">> ALERT :: HELL IS FULL."
+                ]
+                for msg in ultrakill_lines:
+                    yield f"data: {ts}|err|{msg}\n\n"
+                    time.sleep(0.8) # Satır arası bekleme
+            else:
+                cls, msg = random.choice(FAKE_LOGS)
+                yield f"data: {ts}|{cls}|{msg}\n\n"
+                
+    return Response(stream_with_context(generate()),
+                    mimetype='text/event-stream',
+                    headers={
+                        'Cache-Control': 'no-cache', 
+                        'X-Accel-Buffering': 'no',
+                        'Connection': 'keep-alive'
+                    })
+
+HTML_PAGE = """<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PINGBOT // SYSTEM STATUS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+  :root { --c: #00ffff; --cd: #00aaaa; --cg: rgba(0,255,255,0.12); --g: #00ff88; --r: #ff2244; --bg: #000; --panel: #030f0f; --border: rgba(0,255,255,0.2); --muted: #006666; --f: 'Share Tech Mono', monospace; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--c); font-family: var(--f); min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: .55rem 1.6rem; border-bottom: 1px solid var(--c); background: var(--panel); }
+  main { flex: 1; display: grid; grid-template-columns: 1fr 360px; overflow: hidden; }
+  .log-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .log-body { flex: 1; overflow-y: auto; padding: 1.2rem 1.4rem; font-size: .78rem; line-height: 2; }
+  .le { display: flex; gap: .8rem; }
+  .le .ts { color: var(--muted); flex-shrink: 0; }
+  .le .msg.ok { color: var(--g); text-shadow: 0 0 7px var(--g); }
+  .le .msg.err { color: var(--r); text-shadow: 0 0 7px var(--r); }
+  .le .msg.sys { color: var(--muted); }
+  #matrix { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: .045; pointer-events: none; z-index: 0; }
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<div class="topbar">
+  <div class="topbar-left">PINGBOT // RENDER UPTIME SYSTEM</div>
+</div>
+<main>
+  <div class="log-panel">
+    <div class="log-body" id="logbox">
+      <div class="le" id="cursorLine"><span class="ts"></span><span class="msg cursor"></span></div>
+    </div>
+  </div>
+</main>
+<script>
+  // Matrix Efekti
+  var canvas = document.getElementById('matrix'); var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  var drops = Array(Math.floor(canvas.width / 18)).fill(1);
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#00ffff';
+    drops.forEach((y, i) => {
+        ctx.fillText(String.fromCharCode(33 + Math.random() * 94), i * 18, y * 18);
+        if(y * 18 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+    });
+  }
+  setInterval(draw, 55);
+
+  // SSE Bağlantısı
+  var logbox = document.getElementById('logbox');
+  var cursorLine = document.getElementById('cursorLine');
+  function connect() {
+    var es = new EventSource('/log-stream');
+    es.onmessage = function(e) {
+      var p = e.data.split('|');
+      var le = document.createElement('div');
+      le.className = 'le';
+      le.innerHTML = '<span class="ts">'+p[0]+'</span><span class="msg '+p[1]+'">'+p[2]+'</span>';
+      logbox.insertBefore(le, cursorLine);
+      logbox.scrollTop = logbox.scrollHeight;
+    };
+    es.onerror = function() { es.close(); setTimeout(connect, 3000); };
+  }
+  connect();
+</script>
+</body>
+</html>
+"""
+
+BOOT_TIME = time.strftime('%H:%M:%S')
+
+def pinger():
+    time.sleep(10)
+    while True:
+        if TARGET_LINK:
+            try:
+                resp = requests.get(TARGET_LINK, timeout=15)
+                ping_status.update({"last_time": time.strftime('%H:%M:%S'), "last_code": resp.status_code, "last_ok": True})
+                ping_status["success"] += 1
+            except:
+                ping_status.update({"last_time": time.strftime('%H:%M:%S'), "last_code": "HATA", "last_ok": False})
+            ping_status["total"] += 1
+        time.sleep(300)
+
+threading.Thread(target=pinger, daemon=True).start()
+
+@app.route('/')
+def index():
+    return render_template_string(HTML_PAGE, **ping_status, boot_time=BOOT_TIME)
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, threaded=True)import os
+import time
+import threading
+import random
+import requests
+from flask import Flask, render_template_string, Response, stream_with_context
+
+app = Flask(__name__)
+
+TARGET_LINK = os.environ.get("TARGET_LINK", "")
+
+ping_status = {
+    "last_time": "---",
+    "last_code": "---",
+    "last_ok": None,
+    "total": 0,
+    "success": 0,
+}
+
+FAKE_LOGS = [
+    ("sys", ">> MEM CHECK :: heap 42MB / 512MB OK"),
+    ("sys", ">> THREAD POOL :: workers: 4 active"),
+    ("sys", ">> NET IFACE :: eth0 UP [100Mbps]"),
+    ("sys", ">> DNS RESOLVE :: target cached [TTL 60s]"),
+    ("sys", ">> SOCKET :: keepalive enabled"),
+    ("sys", ">> SSL HANDSHAKE :: TLS 1.3 OK"),
+    ("sys", ">> SCHEDULER :: next ping queued"),
+    ("sys", ">> GC CYCLE :: freed 1.2MB"),
     ("sys", ">> ENV LOAD :: TARGET_LINK set"),
     ("sys", ">> WATCHDOG :: process healthy"),
     ("sys", ">> LOG ROTATE :: 0 files purged"),
