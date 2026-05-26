@@ -460,7 +460,8 @@ HTML_PAGE = """<!DOCTYPE html>
       <div class="le" id="cursorLine"><span class="ts"></span><span class="msg cursor"></span></div>
     </div>
 
-    <div style="border:1px solid var(--border);margin:0 1rem .9rem;padding:.6rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:1.2rem;flex-shrink:0;background:rgba(0,255,255,0.02);">
+    <div style="border:1px solid var(--border);margin:0 1rem .9rem;padding:.3rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:1.2rem;flex-shrink:0;background:rgba(0,255,255,0.02);">
+
       
       <div style="display:flex;align-items:center;gap:1.2rem;flex:1;min-width:0;">
         <div style="flex:1;min-width:0;">
