@@ -315,12 +315,12 @@ HTML_PAGE = """<!DOCTYPE html>
   }
 
   /* ── ZİYARETÇİ CHAT ── */
-  .visitor-chat-sec { border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); padding: .6rem 1rem .8rem; flex-shrink: 0; }
+  .visitor-chat-sec { border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); padding: .4rem .8rem .5rem; flex-shrink: 0; }
   .vc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
   .vc-title { font-size:.62rem; letter-spacing:.2em; color:var(--c); text-shadow:0 0 6px var(--c); }
   .vc-live { display:flex; align-items:center; gap:.35rem; font-size:.58rem; color:var(--g); letter-spacing:.12em; }
   .vc-dot { width:6px; height:6px; border-radius:50%; background:var(--g); animation:glow-g 1.4s ease-in-out infinite; }
-  .vc-messages { height:180px; overflow-y:auto; padding:.4rem 0; display:flex; flex-direction:column; gap:.3rem; }
+  .vc-messages { height:100px; overflow-y:auto; padding:.4rem 0; display:flex; flex-direction:column; gap:.3rem; }
   .vc-messages::-webkit-scrollbar { width:2px; }
   .vc-messages::-webkit-scrollbar-thumb { background:var(--muted); }
   .vcm { display:flex; gap:.6rem; font-size:.7rem; line-height:1.6; }
@@ -382,6 +382,27 @@ HTML_PAGE = """<!DOCTYPE html>
       <div class="le"><span class="ts">--:--:--</span><span class="msg sys">&gt;&gt; WAITING :: first ping in 10s...</span></div>
       {% endif %}
       <div class="le" id="cursorLine"><span class="ts"></span><span class="msg cursor"></span></div>
+    </div>
+
+    <!-- ── LOBOTOMY // REC ── -->
+    <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.5rem 1.4rem;display:flex;align-items:center;gap:1.2rem;flex-shrink:0;background:rgba(0,255,255,0.02);">
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.2rem;">
+          <span style="font-size:.58rem;letter-spacing:.18em;color:var(--c);text-shadow:0 0 6px var(--c);">LOBOTOMY // REC</span>
+          <div class="lob-rec-dot" id="lobDot"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <div class="lob-timer-val" style="font-size:1.4rem;margin:0;" id="lobTimer">00:00:00</div>
+          <div style="flex:1;">
+            <div class="lob-viz" style="height:22px;margin:0 0 .25rem;" id="lobViz"></div>
+            <div style="display:flex;gap:1rem;">
+              <span class="dv ok" style="font-size:.58rem;" id="lobStatus">&#9679; RECORDING</span>
+              <span style="font-size:.58rem;color:var(--muted);">START: <span id="lobStart" style="color:var(--cd);">--:--:--</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="lob-btn" id="lobBtn" onclick="lobToggle()" style="width:auto;padding:.35rem .7rem;white-space:nowrap;margin-top:0;">&#9632; STOP</button>
     </div>
 
     <!-- ── ŞU SIRALAR LOBOTOMİ ── -->
@@ -452,27 +473,6 @@ HTML_PAGE = """<!DOCTYPE html>
         <button class="vc-send" onclick="vcSend()">SEND &#9658;</button>
       </div>
       <div class="vc-status"><span style="color:var(--pink)">loblob</span> <span id="vcStat">>> READY</span></div>
-    </div>
-
-    <div class="sec">
-      <div class="sec-lbl">LOBOTOMY // REC</div>
-      <div class="lob-header-row">
-        <span style="font-size:.58rem;letter-spacing:.14em;color:var(--muted);">SESSION DURATION</span>
-        <div class="lob-rec-dot" id="lobDot"></div>
-      </div>
-      <div class="lob-timer-val" id="lobTimer">00:00:00</div>
-      <div class="lob-viz" id="lobViz"></div>
-      <div style="border-top:1px solid var(--border);padding-top:.5rem;">
-        <div class="dr">
-          <span class="dk">STATUS</span>
-          <span class="dv ok" id="lobStatus">&#9679; RECORDING</span>
-        </div>
-        <div class="dr">
-          <span class="dk">STARTED</span>
-          <span class="dv" id="lobStart">--:--:--</span>
-        </div>
-      </div>
-      <button class="lob-btn" id="lobBtn" onclick="lobToggle()">&#9632; STOP RECORDING</button>
     </div>
   </div>
 </main>
