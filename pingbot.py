@@ -337,6 +337,10 @@ HTML_PAGE = """<!DOCTYPE html>
   .vc-send:hover { background:rgba(0,255,255,0.1); }
   .vc-status { font-size:.58rem; color:var(--muted); letter-spacing:.1em; }
 
+  /* ── LOB BAR ANİMASYONLARI ── */
+  @keyframes lobWave { 0%,100%{transform:scaleY(.1)} 50%{transform:scaleY(1)} }
+  @keyframes lobWavePaused { 0%,100%{transform:scaleY(.06)} 50%{transform:scaleY(.13)} }
+
   /* ── BGM PLAYER ── */
   @keyframes bgmBlinkRed {
     0%, 100% {
@@ -382,14 +386,34 @@ HTML_PAGE = """<!DOCTYPE html>
     0% { box-shadow: 0 0 6px rgba(0,255,136,0.2); border-color: rgba(0,255,136,0.6); }
     100% { box-shadow: 0 0 16px rgba(0,255,136,0.5); border-color: var(--g); }
   }
-  .bgm-vol-vertical {
+
+  /* ── YENİ VOL SLIDER ── */
+  .vol-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0;
+  }
+  .vol-label {
+    font-size: .46rem; letter-spacing: .14em; color: var(--muted);
+  }
+  .vol-track {
+    position: relative; width: 14px; height: 52px;
+    background: rgba(0,255,255,0.06);
+    border: 1px solid rgba(0,255,255,0.18);
+    border-radius: 7px;
+    display: flex; align-items: flex-end; overflow: hidden; cursor: pointer;
+  }
+  .vol-fill {
+    width: 100%; background: var(--c); box-shadow: 0 0 8px var(--c);
+    border-radius: 7px; transition: height .12s ease;
+  }
+  .vol-range {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
     -webkit-appearance: slider-vertical;
-    width: 8px;
-    height: 42px;
-    background: rgba(0,255,255,0.1);
-    border: 1px solid rgba(0,255,255,0.2);
-    outline: none;
-    cursor: pointer;
+    writing-mode: vertical-lr; direction: rtl;
+    width: 100%; height: 100%;
+  }
+  .vol-val {
+    font-size: .48rem; color: var(--c); letter-spacing: .05em;
+    text-shadow: 0 0 4px var(--c);
   }
 </style>
 </head>
@@ -459,6 +483,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
       <div style="width:1px;height:48px;background:var(--border);"></div>
 
+      <!-- AUDIO SECTION -->
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;min-width:160px;">
         <div style="font-size:.58rem;letter-spacing:.18em;color:var(--c);text-shadow:0 0 6px var(--c);margin-bottom:2px;">// AUDIO_SYS</div>
         <div style="display:flex;align-items:center;gap:.8rem;width:100%;justify-content:flex-end;">
@@ -467,9 +492,14 @@ HTML_PAGE = """<!DOCTYPE html>
             <div id="bgmTime" style="font-size:.55rem;color:var(--muted);letter-spacing:0.05em;text-align:right;">00:00 / 00:00</div>
             <button id="bgmBtn" class="bgm-btn blink-red" style="margin-top:2px;">// PLAY</button>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;">
-            <span style="font-size:0.5rem;color:var(--muted);letter-spacing:0.05em;">VOL</span>
-            <input type="range" id="bgmVol" class="bgm-vol-vertical" min="0" max="100" value="30" orient="vertical">
+          <!-- YENİ VOL SLIDER -->
+          <div class="vol-wrap">
+            <span class="vol-label">VOL</span>
+            <div class="vol-track" id="volTrack">
+              <div class="vol-fill" id="volFill" style="height:30%;"></div>
+              <input type="range" class="vol-range" id="bgmVol" min="0" max="100" value="30" orient="vertical">
+            </div>
+            <span class="vol-val" id="volVal">30</span>
           </div>
         </div>
       </div>
@@ -671,20 +701,39 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
 
   var lobStartTime=Date.now(), lobRunning=true;
   var lobNow=new Date();
-  document.getElementById('lobStart').textContent=pad(lobNow.getHours())+':'+pad(lobNow.getMinutes())+pad(lobNow.getSeconds());
+  document.getElementById('lobStart').textContent=pad(lobNow.getHours())+':'+pad(lobNow.getMinutes())+':'+pad(lobNow.getSeconds());
 
+  // ── LOB VIZ BARS ── 
   var lobViz=document.getElementById('lobViz');
   var lobBars=[];
   var lobStyle=document.createElement('style');
-  lobStyle.textContent='@keyframes lobWave{0%,100%{transform:scaleY(.1)}50%{transform:scaleY(1)}}';
+  lobStyle.textContent='@keyframes lobWave{0%,100%{transform:scaleY(.1)}50%{transform:scaleY(1)}} @keyframes lobWavePaused{0%,100%{transform:scaleY(.06)}50%{transform:scaleY(.13)}}';
   document.head.appendChild(lobStyle);
+
   for(var i=0;i<40;i++){
     var b=document.createElement('div');
-    var dur=(0.4+Math.random()*0.8).toFixed(2)+'s';
-    var dly=(-Math.random()*1.2).toFixed(2)+'s';
-    b.style.cssText='width:3px;height:32px;border-radius:1px;background:var(--c);box-shadow:0 0 4px var(--c);transform-origin:bottom;transform:scaleY(0.1);animation:lobWave '+dur+' linear '+dly+' infinite;';
-    lobViz.appendChild(b); lobBars.push(b);
+    b.style.cssText='width:3px;height:22px;border-radius:1px;transform-origin:center;transform:scaleY(0.06);';
+    lobViz.appendChild(b);
+    lobBars.push(b);
   }
+
+  // Başlangıçta barlar pasif (müzik yok)
+  function setBarsState(playing) {
+    lobBars.forEach(function(b) {
+      var dur = (0.4 + Math.random() * 0.8).toFixed(2) + 's';
+      var dly = (-Math.random() * 1.2).toFixed(2) + 's';
+      if (playing) {
+        b.style.background = 'var(--c)';
+        b.style.boxShadow = '0 0 4px var(--c)';
+        b.style.animation = 'lobWave ' + dur + ' linear ' + dly + ' infinite';
+      } else {
+        b.style.background = 'rgba(0,255,255,0.18)';
+        b.style.boxShadow = 'none';
+        b.style.animation = 'lobWavePaused ' + dur + ' linear ' + dly + ' infinite';
+      }
+    });
+  }
+  setBarsState(false);
 
   var lobTimerEl=document.getElementById('lobTimer');
   setInterval(function(){
@@ -741,17 +790,30 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
   vcLoad();
   setInterval(vcLoad, 8000);
 
-  // ── BGM PLAYER Lojik ──
+  // ── BGM PLAYER ──
   var widgetIframe = document.getElementById('sc-widget');
   var scWidget = SC.Widget(widgetIframe);
   var bgmBtn = document.getElementById('bgmBtn');
   var bgmVol = document.getElementById('bgmVol');
+  var volFill = document.getElementById('volFill');
+  var volVal  = document.getElementById('volVal');
   var isBgmPlaying = false;
+
+  // Vol slider güncelle
+  function updateVol(v) {
+    volFill.style.height = v + '%';
+    volVal.textContent = v;
+  }
+  updateVol(bgmVol.value);
+
+  bgmVol.addEventListener('input', function() {
+    updateVol(this.value);
+    scWidget.setVolume(this.value);
+  });
 
   scWidget.bind(SC.Widget.Events.READY, function() {
     scWidget.setVolume(bgmVol.value);
     
-    // Şarkı bilgilerini al
     scWidget.getCurrentSound(function(sound) {
       if (sound && sound.title) {
         document.getElementById('bgmTitle').textContent = sound.title;
@@ -766,20 +828,16 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
       });
     });
 
-    // Süre ilerleme takibi
     scWidget.bind(SC.Widget.Events.PLAY_PROGRESS, function(data) {
       var currentSec = Math.floor(data.currentPosition / 1000);
       var curMin = Math.floor(currentSec / 60);
       var curSec = currentSec % 60;
-
       var durationSec = Math.floor(data.soundDuration / 1000);
       var totalMin = Math.floor(durationSec / 60);
       var totalSec = durationSec % 60;
-
       document.getElementById('bgmTime').textContent = pad(curMin) + ":" + pad(curSec) + " / " + pad(totalMin) + ":" + pad(totalSec);
     });
 
-    // Şarkı bitince tekrar başlat (Loop)
     scWidget.bind(SC.Widget.Events.FINISH, function() {
       scWidget.play();
     });
@@ -791,16 +849,14 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
       bgmBtn.className = 'bgm-btn playing';
       bgmBtn.innerHTML = '// PAUSE';
       isBgmPlaying = true;
+      setBarsState(true);   // ← barları aktif et
     } else {
       scWidget.pause();
       bgmBtn.className = 'bgm-btn blink-red';
       bgmBtn.innerHTML = '// PLAY';
       isBgmPlaying = false;
+      setBarsState(false);  // ← barları pasif et
     }
-  });
-
-  bgmVol.addEventListener('input', function() {
-    scWidget.setVolume(this.value);
   });
 
 })();
