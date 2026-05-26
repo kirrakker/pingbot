@@ -335,7 +335,7 @@ HTML_PAGE = """<!DOCTYPE html>
       <div class="np-inner">
         <!-- Resim: src'yi istediğin imgur linki ile değiştir -->
         <div class="np-img-wrap">
-          <img id="npImg" src="https://i.imgur.com/4VfmCSF.png" alt="şu sıralar" />
+          <img id="npImg" src="https://imgur.com/gzsKFml.png" alt="şu sıralar" />
         </div>
         <div class="np-text-area">
           <div class="np-content-text loading" id="npText">// FETCHING DATA...</div>
@@ -435,7 +435,7 @@ HTML_PAGE = """<!DOCTYPE html>
 const FAV_PERSON = "xxx";
 
 // "Şu Sıralar" metninin çekileceği GitHub raw .txt URL'si:
-const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/KULLANICI/REPO/main/su_siralar.txt";
+const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot/refs/heads/main/mesaj.txt";
 
 // "Şu Sıralar" görseli için imgur linki — npImg src'sini de değiştirebilirsin,
 // ya da bu sabiti JS tarafından atamak istersen aşağıdaki satırı aç:
