@@ -315,7 +315,7 @@ HTML_PAGE = """<!DOCTYPE html>
   }
 
   /* ── ZİYARETÇİ CHAT ── */
-  .visitor-chat-sec { border-bottom: 1px solid var(--border); padding: .6rem 1rem .8rem; }
+  .visitor-chat-sec { border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); padding: .6rem 1rem .8rem; flex-shrink: 0; }
   .vc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
   .vc-title { font-size:.62rem; letter-spacing:.2em; color:var(--c); text-shadow:0 0 6px var(--c); }
   .vc-live { display:flex; align-items:center; gap:.35rem; font-size:.58rem; color:var(--g); letter-spacing:.12em; }
@@ -396,6 +396,7 @@ HTML_PAGE = """<!DOCTYPE html>
         </div>
       </div>
     </div>
+
   </div>
 
   <div class="right">
