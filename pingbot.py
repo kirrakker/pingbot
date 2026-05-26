@@ -360,15 +360,6 @@ HTML_PAGE = """<!DOCTYPE html>
       {% endif %}
       <div class="sub">pingbot.py // https://discord.gg/PsDjBy7BjF</div>
     </div>
-
-    <div class="sec">
-      <div class="sec-lbl">PING STATUS</div>
-      <div class="dr">
-        <span class="dk">TARGET_URL</span>
-        <span class="dv" style="color:var(--muted);font-style:italic;">[CLASSIFIED] ██████████</span>
-      </div>
-    </div>
-
     <div class="sec">
       <div class="sec-lbl">STATISTICS</div>
       <div class="sg">
@@ -500,7 +491,7 @@ const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot
 
   var logbox = document.getElementById('logbox');
   var cursorLine = document.getElementById('cursorLine');
-  var MAX_LINES = 12;
+  var MAX_LINES = 14;
   var es;
 
   function connectLogStream() {
