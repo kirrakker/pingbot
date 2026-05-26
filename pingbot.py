@@ -339,7 +339,7 @@ HTML_PAGE = """<!DOCTYPE html>
       <div class="np-inner">
         <!-- Resim: src'yi istediğin imgur linki ile değiştir -->
         <div class="np-img-wrap">
-          <img id="npImg" src="https://i.imgur.com/4VfmCSF.png" alt="şu sıralar" />
+          <img id="npImg" src="https://i.imgur.com/DYSEMfC.png" alt="şu sıralar" />
         </div>
         <div class="np-text-area">
           <div class="np-content-text loading" id="npText">// FETCHING DATA...</div>
