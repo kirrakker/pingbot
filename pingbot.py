@@ -358,7 +358,7 @@ HTML_PAGE = """<!DOCTYPE html>
       {% else %}
         <div class="badge idle"><div class="dot idle"></div>STANDBY</div>
       {% endif %}
-      <div class="sub">pingbot.py // render.com</div>
+      <div class="sub">pingbot.py // https://discord.gg/PsDjBy7BjF</div>
     </div>
 
     <div class="sec">
