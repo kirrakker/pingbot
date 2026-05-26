@@ -385,7 +385,7 @@ HTML_PAGE = """<!DOCTYPE html>
     </div>
 
     <!-- ── LOBOTOMY // REC ── -->
-    <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.5rem 1.4rem;display:flex;align-items:center;gap:1.2rem;flex-shrink:0;background:rgba(0,255,255,0.02);">
+    <div style="border:1px solid var(--border);margin:0 1rem .9rem;padding:.6rem 1.1rem;display:flex;align-items:center;gap:1.2rem;flex-shrink:0;background:rgba(0,255,255,0.02);">
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.2rem;">
           <span style="font-size:.58rem;letter-spacing:.18em;color:var(--c);text-shadow:0 0 6px var(--c);">LOBOTOMY // REC</span>
