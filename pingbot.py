@@ -577,14 +577,14 @@ HTML_PAGE = """<!DOCTYPE html>
   </div>
 </div>
 
-<iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/river-334201727/anatawahero-tt&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false" style="display:none;" allow="autoplay"></iframe>
+<iframe id="sc-widget" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/the-shooteer/mushroom-world-yume-2kki-ost&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false" style="display:none;" allow="autoplay"></iframe>
 
 <script>
 // ╔══════════════════════════════════════════╗
 // ║  KOLAY DEĞİŞTİRİLEBİLİR SABİTLER        ║
 // ╚══════════════════════════════════════════╝
 
-const FAV_PERSON = "Cowboy Spike";
+const FAV_PERSON = "O L A L L A";
 const NOW_PLAYING_TXT_URL = "https://raw.githubusercontent.com/kirrakker/pingbot/refs/heads/main/mesaj.txt";
 
 // ════════════════════════════════════════════
